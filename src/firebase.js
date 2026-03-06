@@ -97,6 +97,35 @@ export async function getCloudProfileCount(email) {
   } catch (e) { return 0 }
 }
 
+// Session management — single device enforcement
+export async function saveSessionToCloud(email, sessionId) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    await setDoc(doc(db, 'sessions', safeEmail), {
+      sessionId,
+      email: email.toLowerCase(),
+      loginAt: new Date().toISOString()
+    })
+    console.log('[Firestore] Session saved to cloud')
+    return true
+  } catch (e) {
+    console.error('[Firestore] Save session failed:', e.message)
+    return false
+  }
+}
+
+export async function getSessionFromCloud(email) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    const snap = await getDoc(doc(db, 'sessions', safeEmail))
+    if (snap.exists()) return snap.data()
+    return null
+  } catch (e) {
+    console.error('[Firestore] Get session failed:', e.message)
+    return null
+  }
+}
+
 export const GOOGLE_CLIENT_ID = '14581108565-vrfbmc1vql2qjm9rjaj93mebhd6e6322.apps.googleusercontent.com'
 
 export default app

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, getCloudProfileCount } from './firebase'
+import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, getCloudProfileCount, saveSessionToCloud, getSessionFromCloud } from './firebase'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import AuthPage from './components/AuthPage'
 import Sidebar from './components/Sidebar'
@@ -31,6 +31,10 @@ function App() {
   // Ref to block auto-login during registration verification
   const pendingVerifyRef = useRef(false)
 
+  // Single-session enforcement
+  const sessionIdRef = useRef(crypto.randomUUID())
+  const sessionCheckRef = useRef(null)
+
   // Firebase auth listener
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (firebaseUser) => {
@@ -45,8 +49,42 @@ function App() {
     return unsub
   }, [])
 
+  // Register session on login + check every 15s if another device took over
+  useEffect(() => {
+    if (!user) {
+      if (sessionCheckRef.current) clearInterval(sessionCheckRef.current)
+      return
+    }
+
+    // Register this device's session
+    saveSessionToCloud(user.email, sessionIdRef.current)
+
+    // Check every 15 seconds if our session is still active
+    sessionCheckRef.current = setInterval(async () => {
+      try {
+        const cloudSession = await getSessionFromCloud(user.email)
+        if (cloudSession && cloudSession.sessionId !== sessionIdRef.current) {
+          // Another device logged in — force logout
+          console.log('[Session] Another device logged in, forcing logout')
+          clearInterval(sessionCheckRef.current)
+          await signOut(auth)
+          setUser(null)
+          setCurrentView('profiles')
+          alert('Llogaria u hap në një pajisje tjetër. Ju jeni çkyçur automatikisht.')
+        }
+      } catch (e) {
+        console.log('[Session] Check failed:', e.message)
+      }
+    }, 15000)
+
+    return () => {
+      if (sessionCheckRef.current) clearInterval(sessionCheckRef.current)
+    }
+  }, [user])
+
   const handleLogout = async () => {
     try {
+      if (sessionCheckRef.current) clearInterval(sessionCheckRef.current)
       await signOut(auth)
       setUser(null)
       setCurrentView('profiles')
@@ -63,13 +101,14 @@ function App() {
         const cloudProfiles = await getProfilesFromCloud(user.email)
 
         if (localProfiles.length === 0 && cloudProfiles && cloudProfiles.length > 0) {
-          // Local is empty, restore from cloud
-          for (const p of cloudProfiles) {
-            await window.electronAPI.createProfile(p)
-          }
+          // Local is empty, restore from cloud (batch for speed)
+          console.log(`[Sync] Restoring ${cloudProfiles.length} profiles from cloud...`)
+          await window.electronAPI.createProfilesBatch(cloudProfiles)
           const restored = await window.electronAPI.getProfiles()
           setProfiles(restored)
-          console.log(`[Sync] Restored ${cloudProfiles.length} profiles from cloud`)
+          // Re-sync restored profiles back to cloud with new IDs
+          saveProfilesToCloud(user.email, restored).catch(() => {})
+          console.log(`[Sync] Restored ${restored.length} profiles from cloud`)
           return
         }
 
