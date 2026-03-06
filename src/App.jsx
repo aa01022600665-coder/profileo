@@ -44,6 +44,12 @@ function App() {
         return
       }
       setUser(firebaseUser)
+      // Notify main process about current user for server-side billing checks
+      if (firebaseUser?.email) {
+        window.electronAPI.setAuthUser(firebaseUser.email)
+      } else {
+        window.electronAPI.setAuthUser(null)
+      }
       setAuthLoading(false)
     })
     return unsub
@@ -161,7 +167,7 @@ function App() {
             // Save to local storage so it works offline next time
             await window.electronAPI.saveBillingPlan(user.email, cloudPlan)
             setBillingPlan(cloudPlan)
-            console.log('[Billing] Plan synced from cloud:', cloudPlan.planId)
+            // Plan synced from cloud
             return
           }
         }

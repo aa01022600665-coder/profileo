@@ -54,6 +54,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listPayments: () => ipcRenderer.invoke('billing:listPayments'),
 
   // Auth
+  setAuthUser: (email) => ipcRenderer.invoke('auth:setUser', email),
   googleAuth: (clientId) => ipcRenderer.invoke('auth:google', clientId),
   sendVerificationCode: (email) => ipcRenderer.invoke('auth:sendCode', email),
   verifyCode: (email, code) => ipcRenderer.invoke('auth:verifyCode', email, code),

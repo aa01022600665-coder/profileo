@@ -46,6 +46,50 @@ let mainWindow
 let profileManager
 let automationEngine
 
+// ===== SECURITY: Rate limiter =====
+const rateLimitMap = new Map()
+function rateLimit(key, maxCalls, windowMs) {
+  const now = Date.now()
+  const entry = rateLimitMap.get(key) || { calls: [], blocked: 0 }
+  entry.calls = entry.calls.filter(t => now - t < windowMs)
+  if (entry.calls.length >= maxCalls) {
+    entry.blocked++
+    rateLimitMap.set(key, entry)
+    return false
+  }
+  entry.calls.push(now)
+  rateLimitMap.set(key, entry)
+  return true
+}
+
+// ===== SECURITY: Input validation =====
+function isValidId(id) {
+  if (!id || typeof id !== 'string') return false
+  // Block path traversal and special chars
+  return /^[a-zA-Z0-9_-]+$/.test(id) && id.length < 200 && !id.includes('..')
+}
+
+function isValidEmail(email) {
+  if (!email || typeof email !== 'string') return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length < 256
+}
+
+// ===== SECURITY: Billing validation helper =====
+function getActiveBillingPlan(dataDir, userKey) {
+  if (!userKey) return null
+  const safe = userKey.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  const file = path.join(dataDir, `billing_${safe}.json`)
+  try {
+    if (!fs.existsSync(file)) return null
+    const plan = JSON.parse(fs.readFileSync(file, 'utf8'))
+    if (!plan || !plan.expirationDate) return null
+    const now = new Date()
+    const exp = new Date(plan.expirationDate)
+    if (now >= exp) return null // Expired
+    return plan
+  } catch { return null }
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1280,
@@ -80,16 +124,69 @@ app.whenReady().then(() => {
   }
   automationEngine = new AutomationEngine(profileManager)
 
-  // Profile CRUD
+  // Current user email for billing checks (set from renderer)
+  let currentUserEmail = null
+  ipcMain.handle('auth:setUser', (_, email) => { currentUserEmail = email })
+
+  // Profile CRUD with server-side billing validation
   ipcMain.handle('profiles:getAll', () => profileManager.getAll())
-  ipcMain.handle('profiles:create', (_, profile) => profileManager.create(profile))
-  ipcMain.handle('profiles:createBatch', (_, arr) => profileManager.createBatch(arr))
-  ipcMain.handle('profiles:update', (_, id, data) => profileManager.update(id, data))
-  ipcMain.handle('profiles:delete', (_, id) => profileManager.delete(id))
-  ipcMain.handle('profiles:deleteMultiple', (_, ids) => profileManager.deleteMultiple(ids))
-  ipcMain.handle('profiles:duplicate', (_, id, count, options) => profileManager.duplicate(id, count, options))
-  ipcMain.handle('profiles:launch', (_, id) => profileManager.launchBrowser(id))
-  ipcMain.handle('profiles:stop', (_, id) => profileManager.stopBrowser(id))
+
+  ipcMain.handle('profiles:create', (_, profile) => {
+    if (!rateLimit('profile:create', 10, 60000)) throw new Error('Rate limit exceeded')
+    const plan = getActiveBillingPlan(dataDir, currentUserEmail)
+    if (!plan) throw new Error('No active plan')
+    const current = profileManager.getAll()
+    if (current.length >= (plan.profileLimit || 0)) throw new Error('Profile limit reached')
+    return profileManager.create(profile)
+  })
+
+  ipcMain.handle('profiles:createBatch', (_, arr) => {
+    if (!rateLimit('profile:create', 10, 60000)) throw new Error('Rate limit exceeded')
+    if (!Array.isArray(arr) || arr.length > 500) throw new Error('Invalid batch')
+    const plan = getActiveBillingPlan(dataDir, currentUserEmail)
+    if (!plan) throw new Error('No active plan')
+    const current = profileManager.getAll()
+    if (current.length + arr.length > (plan.profileLimit || 0)) throw new Error('Profile limit exceeded')
+    return profileManager.createBatch(arr)
+  })
+
+  ipcMain.handle('profiles:update', (_, id, data) => {
+    if (!isValidId(id)) throw new Error('Invalid profile ID')
+    return profileManager.update(id, data)
+  })
+
+  ipcMain.handle('profiles:delete', (_, id) => {
+    if (!isValidId(id)) throw new Error('Invalid profile ID')
+    return profileManager.delete(id)
+  })
+
+  ipcMain.handle('profiles:deleteMultiple', (_, ids) => {
+    if (!Array.isArray(ids) || ids.length > 500) throw new Error('Invalid IDs')
+    if (!ids.every(isValidId)) throw new Error('Invalid profile ID in batch')
+    return profileManager.deleteMultiple(ids)
+  })
+
+  ipcMain.handle('profiles:duplicate', (_, id, count, options) => {
+    if (!isValidId(id)) throw new Error('Invalid profile ID')
+    if (!Number.isInteger(count) || count < 1 || count > 50) throw new Error('Invalid count')
+    const plan = getActiveBillingPlan(dataDir, currentUserEmail)
+    if (!plan) throw new Error('No active plan')
+    const current = profileManager.getAll()
+    if (current.length + count > (plan.profileLimit || 0)) throw new Error('Profile limit exceeded')
+    return profileManager.duplicate(id, count, options)
+  })
+
+  ipcMain.handle('profiles:launch', (_, id) => {
+    if (!isValidId(id)) throw new Error('Invalid profile ID')
+    const plan = getActiveBillingPlan(dataDir, currentUserEmail)
+    if (!plan) throw new Error('No active plan')
+    return profileManager.launchBrowser(id)
+  })
+
+  ipcMain.handle('profiles:stop', (_, id) => {
+    if (!isValidId(id)) throw new Error('Invalid profile ID')
+    return profileManager.stopBrowser(id)
+  })
 
   // Folders
   ipcMain.handle('folders:getAll', () => profileManager.getFolders())
@@ -211,6 +308,8 @@ app.whenReady().then(() => {
 
   // ===== OTP Email Verification (via Worker) =====
   ipcMain.handle('auth:sendCode', async (_, email) => {
+    if (!isValidEmail(email)) return { success: false, error: 'Invalid email' }
+    if (!rateLimit(`sendCode:${email}`, 3, 120000)) return { success: false, error: 'Too many attempts. Wait 2 minutes.' }
     try {
       const result = await workerFetch('/send-code', {
         method: 'POST',
@@ -242,6 +341,9 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('auth:verifyCode', async (_, email, code) => {
+    if (!isValidEmail(email)) return { verified: false, error: 'Invalid email' }
+    if (!code || typeof code !== 'string' || !/^\d{6}$/.test(code)) return { verified: false, error: 'Invalid code' }
+    if (!rateLimit(`verifyCode:${email}`, 5, 120000)) return { verified: false, error: 'Too many attempts. Wait 2 minutes.' }
     try {
       return await workerFetch('/verify-code', {
         method: 'POST',
@@ -279,10 +381,26 @@ app.whenReady().then(() => {
     } catch { return null }
   })
 
+  // Valid plan IDs and their profile limits (server-side truth)
+  const VALID_PLANS = { mini: 5, starter: 30, base: 100, team: 300, business: 1000 }
+
   ipcMain.handle('billing:savePlan', (_, { userId, plan }) => {
     try {
       const file = getBillingFile(userId)
       if (!file) return { success: false, error: 'No user ID' }
+      // Validate plan structure
+      if (!plan || typeof plan !== 'object') return { success: false, error: 'Invalid plan' }
+      if (!plan.planId || !VALID_PLANS[plan.planId]) return { success: false, error: 'Invalid plan ID' }
+      // Enforce correct profile limit from server truth
+      plan.profileLimit = VALID_PLANS[plan.planId]
+      // Validate expiration date
+      if (!plan.expirationDate || isNaN(new Date(plan.expirationDate).getTime())) return { success: false, error: 'Invalid expiration' }
+      // Cap expiration to max 13 months from now (to prevent year 2099 abuse)
+      const maxExp = new Date()
+      maxExp.setMonth(maxExp.getMonth() + 13)
+      if (new Date(plan.expirationDate) > maxExp) {
+        plan.expirationDate = maxExp.toISOString()
+      }
       if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true })
       fs.writeFileSync(file, JSON.stringify(plan, null, 2))
       return { success: true }
@@ -305,7 +423,7 @@ app.whenReady().then(() => {
           const npId = url.searchParams.get('NP_id')
           if (npId) {
             pendingPaymentId = npId
-            console.log('NOWPayments callback received, payment_id:', npId)
+            // Payment callback received
           }
           res.writeHead(200, { 'Content-Type': 'text/html' })
           res.end('<html><body style="background:#1a1a2e;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0"><div style="text-align:center"><h1>Payment Received!</h1><p>You can close this tab and return to Profileo.</p></div></body></html>')
@@ -314,7 +432,7 @@ app.whenReady().then(() => {
         }
       })
       callbackServer.listen(callbackPort, () => {
-        console.log('Callback server started on port', callbackPort)
+        // Callback server started
         resolve(callbackPort)
       })
       callbackServer.on('error', () => {
@@ -340,7 +458,7 @@ app.whenReady().then(() => {
           cancel_url: `http://localhost:${port}/success`
         })
       })
-      console.log('Create invoice result:', JSON.stringify(result))
+      // Invoice created
       return result
     } catch (e) {
       console.error('Create invoice failed:', e)
@@ -353,7 +471,7 @@ app.whenReady().then(() => {
       // 1. If we got a payment_id from the callback redirect, check it directly
       if (pendingPaymentId) {
         const pData = await workerFetch(`/payment/${pendingPaymentId}`)
-        console.log('Payment status (by callback ID):', JSON.stringify(pData))
+        // Payment status checked
         if (pData.payment_id) {
           return { data: [pData], fromCallback: true }
         }
@@ -380,8 +498,12 @@ app.whenReady().then(() => {
     }
   })
 
-  // Open external URL in system browser
-  ipcMain.handle('shell:openExternal', (_, url) => shell.openExternal(url))
+  // Open external URL in system browser (only https)
+  ipcMain.handle('shell:openExternal', (_, url) => {
+    if (!url || typeof url !== 'string') return
+    if (!url.startsWith('https://')) return
+    shell.openExternal(url)
+  })
 
   // Window controls
   ipcMain.handle('window:minimize', () => mainWindow.minimize())

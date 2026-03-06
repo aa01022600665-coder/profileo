@@ -26,10 +26,10 @@ export async function saveBillingToCloud(email, planData) {
       email: email.toLowerCase(),
       updatedAt: new Date().toISOString()
     })
-    console.log('[Firestore] Billing plan saved to cloud')
+    // Billing saved to cloud
     return true
   } catch (e) {
-    console.error('[Firestore] Save billing failed:', e.message)
+    // Save billing failed
     return false
   }
 }
@@ -39,12 +39,12 @@ export async function getBillingFromCloud(email) {
     const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
     const snap = await getDoc(doc(db, 'billing', safeEmail))
     if (snap.exists()) {
-      console.log('[Firestore] Billing plan loaded from cloud')
+      // Billing loaded from cloud
       return snap.data()
     }
     return null
   } catch (e) {
-    console.error('[Firestore] Get billing failed:', e.message)
+    // Get billing failed
     return null
   }
 }
@@ -64,10 +64,10 @@ export async function saveProfilesToCloud(email, profiles) {
       email: email.toLowerCase(),
       updatedAt: new Date().toISOString()
     })
-    console.log(`[Firestore] ${cleanProfiles.length} profiles saved to cloud`)
+    // Profiles saved to cloud
     return true
   } catch (e) {
-    console.error('[Firestore] Save profiles failed:', e.message)
+    // Save profiles failed
     return false
   }
 }
@@ -78,12 +78,12 @@ export async function getProfilesFromCloud(email) {
     const snap = await getDoc(doc(db, 'profiles', safeEmail))
     if (snap.exists()) {
       const data = snap.data()
-      console.log(`[Firestore] ${data.profiles?.length || 0} profiles loaded from cloud`)
+      // Profiles loaded from cloud
       return data.profiles || []
     }
     return null
   } catch (e) {
-    console.error('[Firestore] Get profiles failed:', e.message)
+    // Get profiles failed
     return null
   }
 }
@@ -106,10 +106,10 @@ export async function saveSessionToCloud(email, sessionId) {
       email: email.toLowerCase(),
       loginAt: new Date().toISOString()
     })
-    console.log('[Firestore] Session saved to cloud')
+    // Session saved
     return true
   } catch (e) {
-    console.error('[Firestore] Save session failed:', e.message)
+    // Save session failed
     return false
   }
 }
@@ -121,7 +121,7 @@ export async function getSessionFromCloud(email) {
     if (snap.exists()) return snap.data()
     return null
   } catch (e) {
-    console.error('[Firestore] Get session failed:', e.message)
+    // Get session failed
     return null
   }
 }

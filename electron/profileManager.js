@@ -40,9 +40,11 @@ export class ProfileManager {
 
   create(data) {
     const profiles = this._readProfiles()
+    // Sanitize name: strip HTML tags, limit length
+    const safeName = (data.name || 'Untitled Profile').replace(/<[^>]*>/g, '').substring(0, 100)
     const newProfile = {
       id: uuidv4(),
-      name: data.name || 'Untitled Profile',
+      name: safeName,
       folder: data.folder || '',
       os: data.os || 'Windows',
       browser: data.browser || 'Chrome',
@@ -103,12 +105,15 @@ export class ProfileManager {
   }
 
   async delete(id) {
+    // Safety: ensure id doesn't escape profilesDir
+    if (!id || id.includes('..') || id.includes('/') || id.includes('\\')) throw new Error('Invalid ID')
     await this.stopBrowser(id)
     let profiles = this._readProfiles()
     profiles = profiles.filter(p => p.id !== id)
     this._writeProfiles(profiles)
     const profileDir = path.join(this.profilesDir, id)
-    if (fs.existsSync(profileDir)) {
+    // Double check the resolved path is inside profilesDir
+    if (profileDir.startsWith(this.profilesDir) && fs.existsSync(profileDir)) {
       fs.rmSync(profileDir, { recursive: true, force: true })
     }
     return { success: true }

@@ -146,11 +146,16 @@ function BillingPage({ user, onPlanUpdated }) {
     pollRef.current = setInterval(async () => {
       try {
         const result = await window.electronAPI.getPaymentStatus(invoiceId)
-        console.log('Poll result:', JSON.stringify(result))
+        // Poll checked
 
         // Check payments array
         if (result.data && result.data.length > 0) {
-          const successPayment = result.data.find(p => SUCCESS_STATUSES.includes(p.payment_status))
+          const successPayment = result.data.find(p => {
+            if (!SUCCESS_STATUSES.includes(p.payment_status)) return false
+            // Verify payment amount matches expected amount (allow small rounding diff)
+            if (p.price_amount && Math.abs(parseFloat(p.price_amount) - total) > 0.5) return false
+            return true
+          })
           if (successPayment) {
             await activatePlan(String(successPayment.payment_id))
             return

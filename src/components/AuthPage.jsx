@@ -62,7 +62,8 @@ function AuthPage({ onAuth, onPendingVerify }) {
     setError('')
     if (!email || !password || !name) { setError('Please fill in all fields'); return }
     if (password !== confirmPassword) { setError('Passwords do not match'); return }
-    if (password.length < 6) { setError('Password must be at least 6 characters'); return }
+    if (password.length < 8) { setError('Password must be at least 8 characters'); return }
+    if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) { setError('Password must contain at least 1 uppercase letter and 1 number'); return }
     setLoading(true)
     // Block auto-login during verification
     if (onPendingVerify) onPendingVerify(true)
@@ -385,7 +386,7 @@ function AuthPage({ onAuth, onPendingVerify }) {
             </div>
             <div className="form-group">
               <label>Password</label>
-              <input type="password" className="np-input" placeholder="Create a password (min 6 chars)" value={password} onChange={e => setPassword(e.target.value)} />
+              <input type="password" className="np-input" placeholder="Min 8 chars, 1 uppercase, 1 number" value={password} onChange={e => setPassword(e.target.value)} />
             </div>
             <div className="form-group">
               <label>Confirm Password</label>
