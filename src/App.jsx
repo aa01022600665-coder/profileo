@@ -100,6 +100,18 @@ function App() {
     }
   }
 
+  // Cloud sync helper — awaits and tracks failures
+  const syncProfilesToCloud = useCallback(async (profilesList) => {
+    if (!user) return
+    try {
+      const ok = await saveProfilesToCloud(user.email, profilesList)
+      if (!ok) setSyncError(true)
+      else setSyncError(false)
+    } catch {
+      setSyncError(true)
+    }
+  }, [user])
+
   const loadProfiles = useCallback(async () => {
     const localProfiles = await window.electronAPI.getProfiles()
 
@@ -209,18 +221,6 @@ function App() {
     })
     return cleanup
   }, [loadProfiles])
-
-  // Cloud sync helper — awaits and tracks failures
-  const syncProfilesToCloud = useCallback(async (profilesList) => {
-    if (!user) return
-    try {
-      const ok = await saveProfilesToCloud(user.email, profilesList)
-      if (!ok) setSyncError(true)
-      else setSyncError(false)
-    } catch {
-      setSyncError(true)
-    }
-  }, [user])
 
   // Plan check helper
   const isPlanActive = () => billingPlan && billingPlan.isActive
