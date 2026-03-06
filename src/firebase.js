@@ -49,6 +49,54 @@ export async function getBillingFromCloud(email) {
   }
 }
 
+// Profile sync via Firestore
+export async function saveProfilesToCloud(email, profiles) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    // Remove runtime-only fields before saving
+    const cleanProfiles = profiles.map(p => {
+      const { status, ...rest } = p
+      return rest
+    })
+    await setDoc(doc(db, 'profiles', safeEmail), {
+      profiles: cleanProfiles,
+      count: cleanProfiles.length,
+      email: email.toLowerCase(),
+      updatedAt: new Date().toISOString()
+    })
+    console.log(`[Firestore] ${cleanProfiles.length} profiles saved to cloud`)
+    return true
+  } catch (e) {
+    console.error('[Firestore] Save profiles failed:', e.message)
+    return false
+  }
+}
+
+export async function getProfilesFromCloud(email) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    const snap = await getDoc(doc(db, 'profiles', safeEmail))
+    if (snap.exists()) {
+      const data = snap.data()
+      console.log(`[Firestore] ${data.profiles?.length || 0} profiles loaded from cloud`)
+      return data.profiles || []
+    }
+    return null
+  } catch (e) {
+    console.error('[Firestore] Get profiles failed:', e.message)
+    return null
+  }
+}
+
+export async function getCloudProfileCount(email) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    const snap = await getDoc(doc(db, 'profiles', safeEmail))
+    if (snap.exists()) return snap.data().count || 0
+    return 0
+  } catch (e) { return 0 }
+}
+
 export const GOOGLE_CLIENT_ID = '14581108565-vrfbmc1vql2qjm9rjaj93mebhd6e6322.apps.googleusercontent.com'
 
 export default app

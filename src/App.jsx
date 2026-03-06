@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { auth, getBillingFromCloud, saveBillingToCloud } from './firebase'
+import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, getCloudProfileCount } from './firebase'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import AuthPage from './components/AuthPage'
 import Sidebar from './components/Sidebar'
@@ -56,9 +56,34 @@ function App() {
   }
 
   const loadProfiles = useCallback(async () => {
-    const data = await window.electronAPI.getProfiles()
-    setProfiles(data)
-  }, [])
+    const localProfiles = await window.electronAPI.getProfiles()
+
+    if (user) {
+      try {
+        const cloudProfiles = await getProfilesFromCloud(user.email)
+
+        if (localProfiles.length === 0 && cloudProfiles && cloudProfiles.length > 0) {
+          // Local is empty, restore from cloud
+          for (const p of cloudProfiles) {
+            await window.electronAPI.createProfile(p)
+          }
+          const restored = await window.electronAPI.getProfiles()
+          setProfiles(restored)
+          console.log(`[Sync] Restored ${cloudProfiles.length} profiles from cloud`)
+          return
+        }
+
+        if (localProfiles.length > 0) {
+          // Sync local profiles to cloud
+          saveProfilesToCloud(user.email, localProfiles).catch(() => {})
+        }
+      } catch (e) {
+        console.log('[Sync] Profile sync failed:', e.message)
+      }
+    }
+
+    setProfiles(localProfiles)
+  }, [user])
 
   const loadFolders = useCallback(async () => {
     const data = await window.electronAPI.getFolders()
@@ -137,7 +162,9 @@ function App() {
     if (!isPlanActive() || getRemainingProfiles() < 1) return
     try {
       await window.electronAPI.createProfile(profileData)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
       setCurrentView('profiles')
     } catch (e) { console.error('Create failed:', e) }
   }
@@ -146,14 +173,18 @@ function App() {
     if (!isPlanActive() || getRemainingProfiles() < profilesArray.length) return
     try {
       await window.electronAPI.createProfilesBatch(profilesArray)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
     } catch (e) { console.error('Batch create failed:', e) }
   }
 
   const handleUpdate = async (id, profileData) => {
     try {
       await window.electronAPI.updateProfile(id, profileData)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
       setCurrentView('profiles')
       setEditingProfile(null)
     } catch (e) { console.error('Update failed:', e) }
@@ -162,14 +193,18 @@ function App() {
   const handleDelete = async (id) => {
     try {
       await window.electronAPI.deleteProfile(id)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
     } catch (e) { console.error('Delete failed:', e) }
   }
 
   const handleDeleteMultiple = async (ids) => {
     try {
       await window.electronAPI.deleteMultipleProfiles(ids)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
     } catch (e) { console.error('Delete multiple failed:', e) }
   }
 
@@ -177,7 +212,9 @@ function App() {
     if (!isPlanActive() || getRemainingProfiles() < count) return
     try {
       await window.electronAPI.duplicateProfile(id, count, options)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
     } catch (e) { console.error('Duplicate failed:', e) }
   }
 
@@ -200,7 +237,9 @@ function App() {
     try {
       const created = await window.electronAPI.createProfile(profileData)
       await window.electronAPI.launchProfile(created.id)
-      await loadProfiles()
+      const updated = await window.electronAPI.getProfiles()
+      setProfiles(updated)
+      if (user) saveProfilesToCloud(user.email, updated).catch(() => {})
     } catch (e) { console.error('Quick launch failed:', e) }
   }
 
