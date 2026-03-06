@@ -1,0 +1,60 @@
+{
+  "name": "profileo",
+  "version": "1.1.0",
+  "description": "Browser Profile Manager - Desktop Application",
+  "main": "out/main/main.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "dist": "electron-vite build && electron-builder --win"
+  },
+  "build": {
+    "appId": "com.profileo.app",
+    "productName": "Profileo",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false,
+      "signDlls": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "files": [
+      "out/**/*"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
+    "@xyflow/react": "^12.10.1",
+    "firebase": "^12.10.0",
+    "nodemailer": "^8.0.1",
+    "puppeteer-core": "^24.37.5",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.1.4",
+    "electron": "^40.6.1",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  }
+}
