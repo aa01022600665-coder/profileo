@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import http from 'http'
+import crypto from 'crypto'
 import { fileURLToPath } from 'url'
 import { createTransport } from 'nodemailer'
 import { ProfileManager } from './profileManager.js'
@@ -106,6 +107,18 @@ function createWindow() {
     }
   })
 
+  // CSP headers to prevent XSS (production only — dev uses vite localhost)
+  if (!process.env.ELECTRON_RENDERER_URL) {
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': ["default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://*.firebaseapp.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com"]
+        }
+      })
+    })
+  }
+
   if (process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
   } else {
@@ -142,7 +155,12 @@ app.whenReady().then(() => {
 
   ipcMain.handle('profiles:createBatch', (_, arr) => {
     if (!rateLimit('profile:create', 10, 60000)) throw new Error('Rate limit exceeded')
-    if (!Array.isArray(arr) || arr.length > 500) throw new Error('Invalid batch')
+    if (!Array.isArray(arr) || arr.length === 0 || arr.length > 500) throw new Error('Invalid batch')
+    // Validate each profile in batch
+    for (const item of arr) {
+      if (!item || typeof item !== 'object') throw new Error('Invalid profile in batch')
+      if (item.name && typeof item.name !== 'string') throw new Error('Invalid profile name in batch')
+    }
     const plan = getActiveBillingPlan(dataDir, currentUserEmail)
     if (!plan) throw new Error('No active plan')
     const current = profileManager.getAll()
@@ -190,15 +208,33 @@ app.whenReady().then(() => {
 
   // Folders
   ipcMain.handle('folders:getAll', () => profileManager.getFolders())
-  ipcMain.handle('folders:create', (_, data) => profileManager.createFolder(data))
-  ipcMain.handle('folders:update', (_, id, data) => profileManager.updateFolder(id, data))
-  ipcMain.handle('folders:delete', (_, id) => profileManager.deleteFolder(id))
+  ipcMain.handle('folders:create', (_, data) => {
+    if (!rateLimit('folder:create', 50, 60000)) throw new Error('Rate limit exceeded')
+    return profileManager.createFolder(data)
+  })
+  ipcMain.handle('folders:update', (_, id, data) => {
+    if (!isValidId(id)) throw new Error('Invalid folder ID')
+    return profileManager.updateFolder(id, data)
+  })
+  ipcMain.handle('folders:delete', (_, id) => {
+    if (!isValidId(id)) throw new Error('Invalid folder ID')
+    return profileManager.deleteFolder(id)
+  })
 
   // Proxies
   ipcMain.handle('proxies:getAll', () => profileManager.getProxies())
-  ipcMain.handle('proxies:add', (_, data) => profileManager.addProxies(data))
-  ipcMain.handle('proxies:delete', (_, id) => profileManager.deleteProxy(id))
-  ipcMain.handle('proxies:deleteMultiple', (_, ids) => profileManager.deleteProxies(ids))
+  ipcMain.handle('proxies:add', (_, data) => {
+    if (!rateLimit('proxy:add', 50, 60000)) throw new Error('Rate limit exceeded')
+    return profileManager.addProxies(data)
+  })
+  ipcMain.handle('proxies:delete', (_, id) => {
+    if (!isValidId(id)) throw new Error('Invalid proxy ID')
+    return profileManager.deleteProxy(id)
+  })
+  ipcMain.handle('proxies:deleteMultiple', (_, ids) => {
+    if (!Array.isArray(ids) || ids.length > 500) throw new Error('Invalid IDs')
+    return profileManager.deleteProxies(ids)
+  })
 
   // Automation
   ipcMain.handle('automation:getScripts', () => automationEngine.getScripts())
@@ -262,7 +298,9 @@ app.whenReady().then(() => {
 
       const redirectUri = 'http://localhost'
       const scope = encodeURIComponent('email profile openid')
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`
+      // CSRF protection: generate random state and validate on callback
+      const oauthState = crypto.randomUUID()
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account&state=${encodeURIComponent(oauthState)}`
 
       function handleUrl(url) {
         if (!url || resolved) return
@@ -270,6 +308,9 @@ app.whenReady().then(() => {
           if (url.startsWith('http://localhost')) {
             const hashStr = new URL(url).hash.substring(1)
             const params = new URLSearchParams(hashStr)
+            // Validate state to prevent CSRF
+            const returnedState = params.get('state')
+            if (returnedState !== oauthState) return
             const accessToken = params.get('access_token')
             if (accessToken) {
               resolved = true

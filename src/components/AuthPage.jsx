@@ -45,13 +45,11 @@ function AuthPage({ onAuth, onPendingVerify }) {
       const result = await signInWithEmailAndPassword(auth, email, password)
       onAuth(result.user)
     } catch (err) {
-      switch (err.code) {
-        case 'auth/invalid-email': setError('Invalid email address'); break
-        case 'auth/user-not-found': setError('No account found with this email'); break
-        case 'auth/wrong-password': setError('Incorrect password'); break
-        case 'auth/invalid-credential': setError('Invalid email or password'); break
-        case 'auth/too-many-requests': setError('Too many attempts. Try again later'); break
-        default: setError(err.message)
+      if (err.code === 'auth/too-many-requests') {
+        setError('Too many attempts. Try again later')
+      } else {
+        // Generic message to prevent user enumeration
+        setError('Invalid email or password')
       }
     }
     setLoading(false)
@@ -87,11 +85,10 @@ function AuthPage({ onAuth, onPendingVerify }) {
         setVerifyError('')
         setVerifySuccess('')
       } else {
-        // If email sending fails, still let user in
+        // Email sending failed — do NOT auto-login, require user to sign in manually
         if (onPendingVerify) onPendingVerify(false)
-        setError('Could not send verification email: ' + (res.error || 'SMTP not configured'))
-        const loginResult = await signInWithEmailAndPassword(auth, email, password)
-        onAuth(loginResult.user)
+        setError('Account created but verification email failed. Please sign in manually.')
+        setMode('login')
       }
     } catch (err) {
       if (onPendingVerify) onPendingVerify(false)

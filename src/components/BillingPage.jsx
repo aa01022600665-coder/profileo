@@ -113,6 +113,8 @@ function BillingPage({ user, onPlanUpdated }) {
 
     const SUCCESS_STATUSES = ['confirmed', 'finished', 'sending', 'partially_paid', 'confirming']
     const FAIL_STATUSES = ['expired', 'failed', 'refunded']
+    const MAX_POLL_COUNT = Math.ceil((45 * 60) / 8) // 45 minutes max
+    let pollCount = 0
 
     const activatePlan = async (paymentId) => {
       clearInterval(pollRef.current)
@@ -144,9 +146,15 @@ function BillingPage({ user, onPlanUpdated }) {
     }
 
     pollRef.current = setInterval(async () => {
+      pollCount++
+      if (pollCount > MAX_POLL_COUNT) {
+        clearInterval(pollRef.current)
+        pollRef.current = null
+        setPaymentStatus('failed')
+        return
+      }
       try {
         const result = await window.electronAPI.getPaymentStatus(invoiceId)
-        // Poll checked
 
         // Check payments array
         if (result.data && result.data.length > 0) {

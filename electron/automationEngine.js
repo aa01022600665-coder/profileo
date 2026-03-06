@@ -80,7 +80,16 @@ export class AutomationEngine {
     this._emitProgress(profileId)
 
     // Run in background
-    this._executeScript(profileId, scriptDef, params, cancelRef, totalSteps).catch(() => {})
+    this._executeScript(profileId, scriptDef, params, cancelRef, totalSteps).catch(err => {
+      console.error(`[Automation] Script execution failed for profile ${profileId}:`, err.message)
+      const info = this.runningScripts.get(profileId)
+      if (info && info.status === 'running') {
+        info.status = 'error'
+        info.error = err.message || 'Unknown error'
+        this._emitProgress(profileId)
+        setTimeout(() => this.runningScripts.delete(profileId), 10000)
+      }
+    })
     return { success: true }
   }
 
@@ -99,13 +108,12 @@ export class AutomationEngine {
     let stepCounter = { value: 0 }
 
     try {
-      console.log(`[Automation] Starting script "${scriptDef.name}" on profile ${profileId}`)
-      console.log(`[Automation] Script has ${scriptDef.steps.length} steps:`, JSON.stringify(scriptDef.steps.map(s => s.action)))
+      // Script started
 
       // Ensure browser is running
       let browser = this.profileManager.getBrowser(profileId)
       if (!browser) {
-        console.log(`[Automation] Launching browser for profile ${profileId}...`)
+        // Launching browser for automation
         await this.profileManager.launchBrowser(profileId)
         browser = this.profileManager.getBrowser(profileId)
         // Wait for browser to be fully ready after launch
@@ -115,7 +123,7 @@ export class AutomationEngine {
 
       const pages = await browser.pages()
       const page = pages[0] || await browser.newPage()
-      console.log(`[Automation] Got page, URL: ${page.url()}`)
+      // Page ready
 
       // Small delay to ensure page is interactive
       await new Promise(r => setTimeout(r, 500))
@@ -200,14 +208,11 @@ export class AutomationEngine {
         for (const sel of selectors) {
           try {
             await page.waitForSelector(sel, { timeout: 10000 })
-            console.log(`[Automation] Found click target: ${sel}`)
             try {
               await page.click(sel)
               clicked = true
-              console.log(`[Automation] Clicked: ${sel}`)
               break
             } catch (clickErr) {
-              console.log(`[Automation] Direct click failed: ${clickErr.message}, trying JS click...`)
               // Fallback: click via JavaScript
               const jsClicked = await page.evaluate((s) => {
                 const el = document.querySelector(s)
@@ -216,12 +221,11 @@ export class AutomationEngine {
               }, sel)
               if (jsClicked) {
                 clicked = true
-                console.log(`[Automation] JS-clicked: ${sel}`)
                 break
               }
             }
           } catch (err) {
-            console.log(`[Automation] Click selector "${sel}" not found: ${err.message}`)
+            // Selector not found, try next
           }
         }
         if (!clicked && !step.optional) throw new Error(`No element found: ${step.selector}`)
@@ -234,16 +238,16 @@ export class AutomationEngine {
         for (const sel of selectors) {
           try {
             await page.waitForSelector(sel, { timeout: 10000 })
-            console.log(`[Automation] Found element: ${sel}, trying to click and type...`)
+            // Found element, trying to type
             // Try 1: Normal click + type
             try {
               await page.click(sel, { clickCount: 3 })
               await page.type(sel, step.text || '', { delay: step.delay || 50 })
-              console.log(`[Automation] Typed "${step.text}" into: ${sel} (normal)`)
+              // Typed successfully
               typed = true
               break
             } catch (clickErr) {
-              console.log(`[Automation] Normal click+type failed: ${clickErr.message}, trying keyboard fallback...`)
+              // Click+type failed, trying keyboard fallback
               // Try 2: Focus via JS + keyboard.type
               try {
                 await page.evaluate((s) => {
@@ -258,21 +262,19 @@ export class AutomationEngine {
                 }, sel)
                 await new Promise(r => setTimeout(r, 300))
                 await page.keyboard.type(step.text || '', { delay: step.delay || 50 })
-                console.log(`[Automation] Typed "${step.text}" via keyboard fallback`)
+                // Keyboard fallback succeeded
                 typed = true
                 break
               } catch (kbErr) {
-                console.log(`[Automation] Keyboard fallback also failed: ${kbErr.message}`)
+                // Keyboard fallback failed
               }
             }
           } catch (err) {
-            console.log(`[Automation] Type selector "${sel}" not found: ${err.message}`)
+            // Type selector not found, try next
           }
         }
         if (!typed) {
-          console.log(`[Automation] Warning: could not type into any selector: ${step.selector}`)
-          // Last resort: just type with keyboard wherever focus is
-          console.log(`[Automation] Last resort: typing "${step.text}" with keyboard directly`)
+          // Last resort: type with keyboard wherever focus is
           await page.keyboard.type(step.text || '', { delay: step.delay || 50 })
         }
         break
@@ -323,9 +325,7 @@ export class AutomationEngine {
 
       case 'evaluate':
         try {
-          const evalResult = await page.evaluate(step.script)
-          console.log(`[Automation] Executed JS code, result:`, evalResult)
-          console.log(`[Automation] Current URL after evaluate: ${page.url()}`)
+          await page.evaluate(step.script)
         } catch (err) {
           console.log(`[Automation] Evaluate error: ${err.message}`)
         }
@@ -334,7 +334,6 @@ export class AutomationEngine {
       case 'keypress':
         try {
           await page.keyboard.press(step.key || 'Enter')
-          console.log(`[Automation] Pressed key: ${step.key || 'Enter'}`)
         } catch (err) {
           console.log(`[Automation] Keypress error: ${err.message}`)
         }
@@ -343,7 +342,6 @@ export class AutomationEngine {
       case 'closeTab':
         try {
           await page.close()
-          console.log(`[Automation] Closed tab`)
         } catch (err) {
           console.log(`[Automation] Close tab error: ${err.message}`)
         }
@@ -352,7 +350,6 @@ export class AutomationEngine {
       case 'reloadTab':
         try {
           await page.reload({ waitUntil: 'domcontentloaded', timeout: 15000 })
-          console.log(`[Automation] Reloaded tab`)
         } catch (err) {
           console.log(`[Automation] Reload error: ${err.message}`)
         }
