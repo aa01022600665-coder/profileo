@@ -56,6 +56,10 @@ function BillingPage({ user, onPlanUpdated }) {
         const exp = new Date(plan.expirationDate)
         plan.isActive = now < exp
         setCurrentPlan(plan)
+        // Sync existing plan to cloud for other devices
+        if (plan.isActive) {
+          saveBillingToCloud(user.email, plan).catch(() => {})
+        }
       } else {
         setCurrentPlan(null)
       }
