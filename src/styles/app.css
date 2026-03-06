@@ -104,6 +104,10 @@ html,body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:v
 .search-bar{background:var(--bg-input);border:1px solid var(--border);border-radius:var(--radius);padding:6px 10px 6px 28px;color:var(--text-primary);font-size:12px;width:200px;outline:none;transition:border-color .15s}
 .search-bar:focus{border-color:var(--accent)}
 
+/* ===== PLAN EXPIRED BAR ===== */
+.plan-expired-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;margin:0 0 8px;background:rgba(231,76,60,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:8px;color:#e74c3c;font-size:13px;font-weight:500}
+.run-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
 /* ===== PROFILE TABLE ===== */
 .profile-table-wrapper{flex:1;overflow-y:auto}
 .profile-table{width:100%;border-collapse:collapse}

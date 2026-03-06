@@ -181,6 +181,22 @@ function App() {
     }
   }, [user, loadProfiles, loadFolders, loadProxies, loadBillingPlan])
 
+  // Re-check billing plan every 60s to catch expiration while app is open
+  useEffect(() => {
+    if (!user) return
+    const interval = setInterval(() => {
+      if (billingPlan && billingPlan.expirationDate) {
+        const now = new Date()
+        const exp = new Date(billingPlan.expirationDate)
+        if (now >= exp && billingPlan.isActive) {
+          console.log('[Billing] Plan expired during session')
+          setBillingPlan(prev => prev ? { ...prev, isActive: false } : null)
+        }
+      }
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [user, billingPlan])
+
   // Listen for browser closed externally (user closes Chrome window)
   useEffect(() => {
     const cleanup = window.electronAPI.onProfileStopped(() => {
@@ -258,6 +274,7 @@ function App() {
   }
 
   const handleLaunch = async (id) => {
+    if (!isPlanActive()) return
     try {
       await window.electronAPI.launchProfile(id)
     } catch (e) { console.error('Launch failed:', e) }

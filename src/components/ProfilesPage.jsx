@@ -203,7 +203,7 @@ function ProfilesPage({
             <div className="profiles-toolbar-left">
               {selected.size > 0 ? (
                 <>
-                  <button className="btn btn-sm btn-success" onClick={handleBulkRun}>
+                  <button className="btn btn-sm btn-success" onClick={handleBulkRun} disabled={!planActive}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     Run ({selected.size})
                   </button>
@@ -224,6 +224,13 @@ function ProfilesPage({
               </div>
             </div>
           </div>
+
+          {!planActive && profiles.length > 0 && (
+            <div className="plan-expired-bar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>Your plan has expired. Renew to launch profiles.</span>
+            </div>
+          )}
 
           <div className="profile-table-wrapper">
             <table className="profile-table">
@@ -259,7 +266,7 @@ function ProfilesPage({
                     <td className="col-action">
                       {profile.status === 'active'
                         ? <button className="run-btn run-stop" onClick={() => onStop(profile.id)}>Stop</button>
-                        : <button className="run-btn" onClick={() => onLaunch(profile.id)}>Run</button>
+                        : <button className="run-btn" onClick={() => onLaunch(profile.id)} disabled={!planActive}>Run</button>
                       }
                     </td>
                     <td className="col-more">
