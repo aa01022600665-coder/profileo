@@ -126,6 +126,58 @@ export class ProfileManager {
     return { success: true }
   }
 
+  replaceAllFromCloud(cloudProfiles) {
+    // Replace all local profile metadata with cloud data
+    // Preserves local browser data dirs where IDs match
+    const oldProfiles = this._readProfiles()
+    const newProfiles = []
+    for (const data of cloudProfiles) {
+      newProfiles.push({
+        id: data.id || uuidv4(),
+        name: data.name || 'Untitled Profile',
+        folder: data.folder || '',
+        os: data.os || 'Windows',
+        browser: data.browser || 'Chrome',
+        userAgent: data.userAgent || '',
+        screenWidth: parseInt(data.screenWidth) || 1920,
+        screenHeight: parseInt(data.screenHeight) || 1080,
+        timezone: data.timezone || 'America/New_York',
+        language: data.language || 'en-US',
+        proxy: data.proxy || '',
+        proxyType: data.proxyType || 'Without Proxy',
+        notes: data.notes || '',
+        tags: data.tags || '',
+        startUrl: data.startUrl || '',
+        webrtc: data.webrtc || 'Altered',
+        geolocation: data.geolocation || 'Prompt',
+        geoLat: data.geoLat || '',
+        geoLng: data.geoLng || '',
+        geoAccuracy: data.geoAccuracy || '',
+        browserDataSync: data.browserDataSync !== false,
+        fakeCanvas: data.fakeCanvas || false,
+        fakeAudio: data.fakeAudio !== false,
+        fakeWebGLImage: data.fakeWebGLImage || false,
+        fakeWebGLMetadata: data.fakeWebGLMetadata !== false,
+        fakeClientRects: data.fakeClientRects || false,
+        maskMediaDevices: data.maskMediaDevices || false,
+        mediaVideoInputs: parseInt(data.mediaVideoInputs) || 1,
+        mediaAudioInputs: parseInt(data.mediaAudioInputs) || 1,
+        mediaAudioOutputs: parseInt(data.mediaAudioOutputs) || 1,
+        clearCache: data.clearCache || false,
+        restoreSession: data.restoreSession !== false,
+        dontShowImages: data.dontShowImages || false,
+        muteAudio: data.muteAudio || false,
+        cookies: data.cookies || '',
+        bookmarks: data.bookmarks || '',
+        status: 'ready',
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString()
+      })
+    }
+    this._writeProfiles(newProfiles)
+    return newProfiles
+  }
+
   createBatch(dataArray) {
     const profiles = this._readProfiles()
     const created = []
@@ -485,6 +537,18 @@ export class ProfileManager {
     const winW = isMobile ? (profile.screenWidth || 412) : (profile.screenWidth || 1920)
     const winH = isMobile ? (profile.screenHeight || 915) : (profile.screenHeight || 1080)
 
+    // Check if this is the first time launching this profile
+    const isFirstLaunch = !fs.existsSync(path.join(userDataDir, 'Default'))
+
+    // Load saved session URLs for session restore
+    const sessionFile = path.join(userDataDir, '_lastSession.json')
+    let lastSessionUrls = []
+    if (!isFirstLaunch && profile.restoreSession !== false) {
+      try {
+        lastSessionUrls = JSON.parse(fs.readFileSync(sessionFile, 'utf8'))
+      } catch (_) {}
+    }
+
     const args = [
       `--user-data-dir=${userDataDir}`,
       `--window-size=${winW},${winH}`,
@@ -492,8 +556,7 @@ export class ProfileManager {
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-infobars',
-      // Stealth: disable automation-related flags
-      '--disable-blink-features=AutomationControlled',
+      // Stealth flags (navigator.webdriver patched via JS - no --disable-blink-features to avoid warning banner)
       '--disable-features=AutomationControlled,TranslateUI',
       '--disable-component-extensions-with-background-pages',
       '--disable-default-apps',
@@ -506,6 +569,8 @@ export class ProfileManager {
       '--password-store=basic',
       '--use-mock-keychain',
       '--export-tagged-pdf',
+      '--autoplay-policy=no-user-gesture-required',
+      '--disable-blink-features=AutomationControlled',
     ]
 
     if (proxyServer) {
@@ -533,160 +598,81 @@ export class ProfileManager {
 
     const setupPage = async (page) => {
       try {
-        // ═══ Comprehensive Stealth Patches ═══
+        // Minimal Stealth - ONLY hide automation signals
+        // DO NOT override Canvas, WebGL, Audio, Plugins, chrome.runtime etc.
+        // Real Chrome already has real fingerprints - faking them triggers detection!
         await page.evaluateOnNewDocument((lang) => {
-          // 1) Hide navigator.webdriver
-          Object.defineProperty(navigator, 'webdriver', { get: () => undefined })
+          const _dp = Object.defineProperty
 
-          // 2) Mock window.chrome to look like real Chrome
-          if (!window.chrome) {
-            window.chrome = {}
-          }
-          if (!window.chrome.runtime) {
-            window.chrome.runtime = {
-              connect: function() {},
-              sendMessage: function() {},
-              onMessage: { addListener: function() {}, removeListener: function() {} },
-              id: undefined,
-            }
-          }
-          // chrome.csi and chrome.loadTimes
-          if (!window.chrome.csi) {
-            window.chrome.csi = function() { return {} }
-          }
-          if (!window.chrome.loadTimes) {
-            window.chrome.loadTimes = function() {
-              return {
-                commitLoadTime: Date.now() / 1000,
-                connectionInfo: 'h2',
-                finishDocumentLoadTime: Date.now() / 1000,
-                finishLoadTime: Date.now() / 1000,
-                firstPaintAfterLoadTime: 0,
-                firstPaintTime: Date.now() / 1000,
-                navigationType: 'Other',
-                npnNegotiatedProtocol: 'h2',
-                requestTime: Date.now() / 1000 - 0.16,
-                startLoadTime: Date.now() / 1000 - 0.16,
-                wasAlternateProtocolAvailable: false,
-                wasFetchedViaSpdy: true,
-                wasNpnNegotiated: true,
-              }
-            }
-          }
+          // 1) Hide navigator.webdriver - the ONLY critical automation tell
+          try { delete Object.getPrototypeOf(navigator).webdriver } catch (_) {}
+          _dp(navigator, 'webdriver', { get: () => undefined, configurable: true })
 
-          // 3) Fix navigator.plugins (empty in automation)
-          if (navigator.plugins.length === 0) {
-            const fakePlugins = [
-              { name: 'Chrome PDF Plugin', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
-              { name: 'Chrome PDF Viewer', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: '' },
-              { name: 'Native Client', filename: 'internal-nacl-plugin', description: '' },
-            ]
-            const pluginArray = []
-            fakePlugins.forEach(fp => {
-              const p = Object.create(Plugin.prototype)
-              Object.defineProperties(p, {
-                name: { value: fp.name, enumerable: true },
-                filename: { value: fp.filename, enumerable: true },
-                description: { value: fp.description, enumerable: true },
-                length: { value: 1, enumerable: true },
-              })
-              pluginArray.push(p)
-            })
-            Object.defineProperty(navigator, 'plugins', {
-              get: () => {
-                const arr = pluginArray
-                arr.item = (i) => arr[i] || null
-                arr.namedItem = (name) => arr.find(p => p.name === name) || null
-                arr.refresh = () => {}
-                return arr
-              }
-            })
-          }
-
-          // 4) Fix navigator.languages
-          Object.defineProperty(navigator, 'languages', {
-            get: () => [lang, lang.split('-')[0]]
+          // 2) Fix navigator.languages to match profile language
+          _dp(navigator, 'languages', {
+            get: () => Object.freeze([lang, lang.split('-')[0]]),
+            configurable: true
           })
 
-          // 5) Fix navigator.permissions.query (notifications should be "prompt" not "denied")
-          const originalQuery = window.navigator.permissions?.query?.bind(window.navigator.permissions)
-          if (originalQuery) {
-            window.navigator.permissions.query = (parameters) => {
-              if (parameters.name === 'notifications') {
-                return Promise.resolve({ state: Notification.permission === 'denied' ? 'prompt' : Notification.permission })
-              }
-              return originalQuery(parameters)
+          // 3) Fix navigator.connection.rtt (reads 0 in automation)
+          if (navigator.connection && navigator.connection.rtt === 0) {
+            const fakeRtt = 50 + Math.floor(Math.random() * 100)
+            _dp(navigator.connection, 'rtt', { get: () => fakeRtt, configurable: true })
+            if (navigator.connection.downlink === 0) {
+              _dp(navigator.connection, 'downlink', { get: () => 1.5 + Math.random() * 8, configurable: true })
             }
           }
 
-          // 6) Fix Notification.permission to "default"
+          // 4) Fix Notification.permission (shows 'denied' in automation)
           if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
-            Object.defineProperty(Notification, 'permission', { get: () => 'default' })
+            _dp(Notification, 'permission', { get: () => 'default', configurable: true })
           }
 
-          // 7) Fix navigator.connection.rtt (0 in automation)
-          if (navigator.connection && navigator.connection.rtt === 0) {
-            Object.defineProperty(navigator.connection, 'rtt', { get: () => 50 + Math.floor(Math.random() * 100) })
-          }
+          // 5) Fix window outer dimensions if 0 (headless tell)
+          if (window.outerWidth === 0) _dp(window, 'outerWidth', { get: () => window.innerWidth, configurable: true })
+          if (window.outerHeight === 0) _dp(window, 'outerHeight', { get: () => window.innerHeight + 85, configurable: true })
 
-          // 8) Fix iframe contentWindow detection
-          const originalAttachShadow = Element.prototype.attachShadow
-          Element.prototype.attachShadow = function() {
-            return originalAttachShadow.apply(this, arguments)
-          }
-
-          // 9) Override toString for patched functions to look native
-          const nativeToString = Function.prototype.toString
-          const customFns = new Set()
-          const origDefineProperty = Object.defineProperty
-          const patchToString = (fn, nativeName) => {
-            customFns.add(fn)
-            try {
-              origDefineProperty(fn, 'toString', {
-                value: function() { return `function ${nativeName || ''}() { [native code] }` },
-                writable: false, configurable: true
-              })
-            } catch (_) {}
-          }
-          if (window.chrome?.csi) patchToString(window.chrome.csi, 'csi')
-          if (window.chrome?.loadTimes) patchToString(window.chrome.loadTimes, 'loadTimes')
-
-          // 10) Fix window.outerWidth/outerHeight (sometimes 0 in headless)
-          if (window.outerWidth === 0) {
-            Object.defineProperty(window, 'outerWidth', { get: () => window.innerWidth })
-          }
-          if (window.outerHeight === 0) {
-            Object.defineProperty(window, 'outerHeight', { get: () => window.innerHeight + 85 })
-          }
-
-          // 11) Fix missing screen properties
-          if (screen.availWidth === 0) {
-            Object.defineProperty(screen, 'availWidth', { get: () => screen.width })
-          }
-          if (screen.availHeight === 0) {
-            Object.defineProperty(screen, 'availHeight', { get: () => screen.height - 40 })
-          }
+          // 6) Fix screen properties if 0
+          if (screen.availWidth === 0) _dp(screen, 'availWidth', { get: () => screen.width, configurable: true })
+          if (screen.availHeight === 0) _dp(screen, 'availHeight', { get: () => screen.height - 40, configurable: true })
 
         }, profileLang)
 
-        // ═══ CDP-level stealth: remove "cdc_" markers ═══
+        // CDP-level stealth: remove automation markers
         const cdpStealth = await page.createCDPSession()
         try {
-          // Remove automation-related Console domain markers
           await cdpStealth.send('Page.addScriptToEvaluateOnNewDocument', {
             source: `
-              // Remove cdc_ properties from document
-              delete Object.getPrototypeOf(navigator).webdriver;
-              // Prevent detection via error stack traces
-              const origError = Error;
-              window.Error = function(...args) {
-                const err = new origError(...args);
-                if (err.stack) {
-                  err.stack = err.stack.replace(/\\n.*pptr.*/g, '');
-                }
-                return err;
+              // Scrub ALL puppeteer/cdp/automation markers from error stacks
+              const _origErr = Error;
+              const _scrubStack = (stack) => {
+                if (!stack) return stack;
+                return stack.split('\\n').filter(l => !/pptr|puppeteer|__puppeteer|DevTools|cdp_|cdc_/i.test(l)).join('\\n');
               };
-              window.Error.prototype = origError.prototype;
+              const errProxy = new Proxy(_origErr, {
+                construct(target, args) {
+                  const err = new target(...args);
+                  if (err.stack) err.stack = _scrubStack(err.stack);
+                  return err;
+                },
+                apply(target, thisArg, args) {
+                  const err = target.apply(thisArg, args);
+                  if (err && err.stack) err.stack = _scrubStack(err.stack);
+                  return err;
+                }
+              });
+              errProxy.prototype = _origErr.prototype;
+              errProxy.captureStackTrace = _origErr.captureStackTrace;
+              errProxy.stackTraceLimit = _origErr.stackTraceLimit;
+              window.Error = errProxy;
+              // Remove cdc_ properties
+              for (const obj of [document, window]) {
+                for (const prop of Object.getOwnPropertyNames(obj)) {
+                  if (/^(\\$cdc_|cdc_|__webdriver)/.test(prop)) {
+                    try { delete obj[prop]; } catch(_) {}
+                  }
+                }
+              }
             `
           })
         } catch (_) {}
@@ -700,10 +686,86 @@ export class ProfileManager {
         // Get CDP session for advanced emulation
         const cdp = await page.createCDPSession()
 
+        // Platform and Client Hints mapping for all OS types
+        const osConfig = {
+          'Android': {
+            platform: 'Linux armv81',
+            navPlatform: 'Linux armv81',
+            uaPlatform: 'Android',
+            uaPlatformVersion: String(11 + Math.floor(Math.random() * 4)) + '.0.0',
+            architecture: 'arm',
+            model: 'Pixel ' + (5 + Math.floor(Math.random() * 4)),
+            mobile: true,
+            bitness: '64'
+          },
+          'iOS': {
+            platform: 'iPhone',
+            navPlatform: 'iPhone',
+            uaPlatform: 'iOS',
+            uaPlatformVersion: String(15 + Math.floor(Math.random() * 3)) + '.' + Math.floor(Math.random() * 6),
+            architecture: 'arm',
+            model: 'iPhone',
+            mobile: true,
+            bitness: '64'
+          },
+          'Windows': {
+            platform: 'Win32',
+            navPlatform: 'Win32',
+            uaPlatform: 'Windows',
+            uaPlatformVersion: '10.0.0',
+            architecture: 'x86',
+            model: '',
+            mobile: false,
+            bitness: '64'
+          },
+          'MacOS': {
+            platform: 'MacIntel',
+            navPlatform: 'MacIntel',
+            uaPlatform: 'macOS',
+            uaPlatformVersion: '13.' + Math.floor(Math.random() * 5) + '.' + Math.floor(Math.random() * 3),
+            architecture: 'x86',
+            model: '',
+            mobile: false,
+            bitness: '64'
+          },
+          'Linux': {
+            platform: 'Linux x86_64',
+            navPlatform: 'Linux x86_64',
+            uaPlatform: 'Linux',
+            uaPlatformVersion: '6.' + Math.floor(Math.random() * 5),
+            architecture: 'x86',
+            model: '',
+            mobile: false,
+            bitness: '64'
+          }
+        }
+
+        const osConf = osConfig[profile.os] || osConfig['Windows']
+        const chromeVersion = userAgent.match(/Chrome\/(\d+)/)?.[1] || '124'
+        const browserType = profile.browser || 'Chrome'
+
+        // Build browser-specific Client Hints brands
+        const buildBrands = (ver, full) => {
+          const base = [{ brand: 'Chromium', version: full ? ver + '.0.0.0' : ver }]
+          if (browserType === 'Edge' && userAgent.includes('Edg/')) {
+            const edgeVer = userAgent.match(/Edg\/(\d+)/)?.[1] || ver
+            base.push({ brand: 'Microsoft Edge', version: full ? edgeVer + '.0.0.0' : edgeVer })
+          } else if (browserType === 'Opera' && userAgent.includes('OPR/')) {
+            const operaVer = userAgent.match(/OPR\/(\d+)/)?.[1] || ver
+            base.push({ brand: 'Opera', version: full ? operaVer + '.0.0.0' : operaVer })
+          } else if (browserType === 'Brave') {
+            base.push({ brand: 'Brave', version: full ? ver + '.0.0.0' : ver })
+          } else {
+            base.push({ brand: 'Google Chrome', version: full ? ver + '.0.0.0' : ver })
+          }
+          base.push({ brand: 'Not_A Brand', version: full ? '8.0.0.0' : '8' })
+          return base
+        }
+
         if (isMobile) {
           // Full mobile device emulation via CDP
-          const mobileW = 412
-          const mobileH = 915
+          const mobileW = profile.screenWidth || 412
+          const mobileH = profile.screenHeight || 915
           const scaleFactor = 2.625
 
           await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -720,19 +782,56 @@ export class ProfileManager {
             enabled: true,
             maxTouchPoints: 5
           })
-
-          await cdp.send('Emulation.setUserAgentOverride', {
-            userAgent: userAgent,
-            platform: profile.os === 'Android' ? 'Linux armv81' : 'iPhone',
-            userAgentMetadata: {
-              mobile: true,
-              platform: profile.os === 'Android' ? 'Android' : 'iOS'
-            }
-          })
-        } else {
-          // Desktop: just set user agent
-          await page.setUserAgent(userAgent)
         }
+
+        // Set user agent + full Client Hints for ALL OS types
+        await cdp.send('Emulation.setUserAgentOverride', {
+          userAgent: userAgent,
+          platform: osConf.platform,
+          userAgentMetadata: {
+            brands: buildBrands(chromeVersion, false),
+            fullVersionList: buildBrands(chromeVersion, true),
+            fullVersion: chromeVersion + '.0.0.0',
+            platform: osConf.uaPlatform,
+            platformVersion: osConf.uaPlatformVersion,
+            architecture: osConf.architecture,
+            model: osConf.model,
+            mobile: osConf.mobile,
+            bitness: osConf.bitness,
+            wow64: false
+          }
+        })
+
+        // Override navigator.platform + WebRTC protection
+        const webrtcMode = profile.webrtc || 'Altered'
+        await page.evaluateOnNewDocument((navPlatform, isMob, webrtc) => {
+          Object.defineProperty(navigator, 'platform', { get: () => navPlatform })
+          if (isMob) {
+            Object.defineProperty(navigator, 'maxTouchPoints', { get: () => 5 })
+          }
+          // WebRTC IP leak protection
+          if (webrtc === 'Disabled') {
+            window.RTCPeerConnection = undefined
+            window.webkitRTCPeerConnection = undefined
+            window.mozRTCPeerConnection = undefined
+            if (navigator.mediaDevices) {
+              navigator.mediaDevices.getUserMedia = () => Promise.reject(new Error('Not allowed'))
+            }
+          } else if (webrtc === 'Altered') {
+            const origRTC = window.RTCPeerConnection || window.webkitRTCPeerConnection
+            if (origRTC) {
+              const patchedRTC = function(config, constraints) {
+                config = config || {}
+                config.iceTransportPolicy = 'relay'
+                return new origRTC(config, constraints)
+              }
+              patchedRTC.prototype = origRTC.prototype
+              patchedRTC.generateCertificate = origRTC.generateCertificate
+              window.RTCPeerConnection = patchedRTC
+              if (window.webkitRTCPeerConnection) window.webkitRTCPeerConnection = patchedRTC
+            }
+          }
+        }, osConf.navPlatform, osConf.mobile, webrtcMode)
 
         if (profile.timezone) await page.emulateTimezone(profile.timezone)
         if (profile.geolocation === 'Allow' && profile.geoLat && profile.geoLng) {
@@ -745,11 +844,152 @@ export class ProfileManager {
       } catch (_) {}
     }
 
+    // Auto-handle Cloudflare Turnstile challenges with human-like mouse simulation
+    const handleCloudflareTurnstile = async (page) => {
+      try {
+        // Check if page has Cloudflare challenge
+        const isCfChallenge = await page.evaluate(() => {
+          return document.title.includes('Just a moment') ||
+                 document.querySelector('#challenge-running') !== null ||
+                 document.querySelector('#challenge-stage') !== null ||
+                 document.querySelector('.cf-turnstile-wrapper') !== null ||
+                 document.querySelector('iframe[src*="challenges.cloudflare.com"]') !== null
+        }).catch(() => false)
+
+        if (!isCfChallenge) return
+
+        // Wait for Turnstile iframe to fully load
+        await new Promise(r => setTimeout(r, 3000 + Math.random() * 2000))
+
+        // Human-like mouse movement helper using CDP
+        const humanMouseMove = async (cdpSession, startX, startY, endX, endY, steps) => {
+          steps = steps || 15 + Math.floor(Math.random() * 15)
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps
+            // Bezier-like curve for natural movement
+            const eased = t * t * (3 - 2 * t)
+            const jitterX = (Math.random() - 0.5) * 3
+            const jitterY = (Math.random() - 0.5) * 3
+            const x = startX + (endX - startX) * eased + jitterX
+            const y = startY + (endY - startY) * eased + jitterY
+            await cdpSession.send('Input.dispatchMouseEvent', {
+              type: 'mouseMoved',
+              x: Math.round(x),
+              y: Math.round(y),
+              modifiers: 0
+            })
+            await new Promise(r => setTimeout(r, 10 + Math.random() * 25))
+          }
+        }
+
+        // Find Turnstile iframe bounding box
+        const cfIframe = await page.$('iframe[src*="challenges.cloudflare.com"], iframe[src*="turnstile"]')
+        if (!cfIframe) {
+          // Try to find by checking all iframes
+          const allIframes = await page.$$('iframe')
+          let foundBox = null
+          for (const iframe of allIframes) {
+            try {
+              const src = await page.evaluate(el => el.src || '', iframe)
+              if (src.includes('challenges') || src.includes('turnstile') || src.includes('cloudflare')) {
+                foundBox = await iframe.boundingBox()
+                break
+              }
+            } catch (_) {}
+          }
+          if (!foundBox) return
+          var box = foundBox
+        } else {
+          var box = await cfIframe.boundingBox()
+        }
+
+        if (!box || box.width === 0 || box.height === 0) return
+
+        // Create CDP session for precise mouse control
+        let cdp
+        try {
+          cdp = await page.createCDPSession()
+        } catch (_) { return }
+
+        try {
+          // Checkbox is typically at left side of the Turnstile widget, vertically centered
+          const targetX = box.x + 28 + Math.random() * 8
+          const targetY = box.y + (box.height / 2) + (Math.random() - 0.5) * 6
+
+          // Start from a random position on the page
+          const startX = 200 + Math.random() * 400
+          const startY = 300 + Math.random() * 200
+
+          // Move mouse naturally to the checkbox
+          await humanMouseMove(cdp, startX, startY, targetX, targetY)
+
+          // Small pause before clicking (human-like hesitation)
+          await new Promise(r => setTimeout(r, 100 + Math.random() * 300))
+
+          // Click with mousePressed + mouseReleased (more realistic than click)
+          await cdp.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            x: Math.round(targetX),
+            y: Math.round(targetY),
+            button: 'left',
+            clickCount: 1,
+            modifiers: 0
+          })
+          await new Promise(r => setTimeout(r, 50 + Math.random() * 80))
+          await cdp.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            x: Math.round(targetX),
+            y: Math.round(targetY),
+            button: 'left',
+            clickCount: 1,
+            modifiers: 0
+          })
+
+          // Wait for Cloudflare to verify
+          await new Promise(r => setTimeout(r, 5000))
+
+          // Check if challenge is still present (might need retry)
+          const stillChallenge = await page.evaluate(() => {
+            return document.title.includes('Just a moment')
+          }).catch(() => false)
+
+          if (stillChallenge) {
+            // Retry once with slightly different position
+            await new Promise(r => setTimeout(r, 2000))
+            const retryX = box.x + 25 + Math.random() * 15
+            const retryY = box.y + (box.height / 2) + (Math.random() - 0.5) * 4
+            await humanMouseMove(cdp, targetX + 100, targetY + 50, retryX, retryY)
+            await new Promise(r => setTimeout(r, 200 + Math.random() * 300))
+            await cdp.send('Input.dispatchMouseEvent', {
+              type: 'mousePressed', x: Math.round(retryX), y: Math.round(retryY),
+              button: 'left', clickCount: 1, modifiers: 0
+            })
+            await new Promise(r => setTimeout(r, 60 + Math.random() * 60))
+            await cdp.send('Input.dispatchMouseEvent', {
+              type: 'mouseReleased', x: Math.round(retryX), y: Math.round(retryY),
+              button: 'left', clickCount: 1, modifiers: 0
+            })
+          }
+        } catch (_) {}
+        try { await cdp.detach() } catch (_) {}
+      } catch (_) {}
+    }
+
+    // Monitor all pages for Cloudflare challenges
+    const monitorPage = (page) => {
+      page.on('load', () => {
+        setTimeout(() => handleCloudflareTurnstile(page), 2000 + Math.random() * 1500)
+      })
+    }
+
     browser.on('targetcreated', async (target) => {
       if (target.type() === 'page') {
         try {
           const page = await target.page()
-          if (page) await setupPage(page)
+          if (page) {
+            await setupPage(page)
+            monitorPage(page)
+          }
         } catch (_) {}
       }
     })
@@ -757,14 +997,53 @@ export class ProfileManager {
     const pages = await browser.pages()
     if (pages.length > 0) {
       await setupPage(pages[0])
-      // Navigate to start URL or default
-      const url = profile.startUrl || 'https://ipfighter.com'
-      try { await pages[0].goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }) } catch (_) {}
+      monitorPage(pages[0])
+
+      if (isFirstLaunch) {
+        // First launch: navigate to start URL or ipfighter.com
+        const url = profile.startUrl || 'https://ipfighter.com'
+        try { await pages[0].goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }) } catch (_) {}
+      } else if (lastSessionUrls.length > 0) {
+        // Restore last session: open saved URLs
+        try { await pages[0].goto(lastSessionUrls[0], { waitUntil: 'domcontentloaded', timeout: 15000 }) } catch (_) {}
+        for (let i = 1; i < lastSessionUrls.length; i++) {
+          try {
+            const newPage = await browser.newPage()
+            await setupPage(newPage)
+            await newPage.goto(lastSessionUrls[i], { waitUntil: 'domcontentloaded', timeout: 15000 })
+          } catch (_) {}
+        }
+      } else if (profile.startUrl) {
+        // Not first launch, no session, but has start URL
+        try { await pages[0].goto(profile.startUrl, { waitUntil: 'domcontentloaded', timeout: 15000 }) } catch (_) {}
+      }
+      // else: not first launch, no session, no startUrl - stays on new tab
     }
 
     this.runningBrowsers.set(profileId, browser)
 
+    // Periodically save session URLs for restore
+    const saveSession = async () => {
+      try {
+        const allPages = await browser.pages()
+        const urls = []
+        for (const p of allPages) {
+          try {
+            const url = p.url()
+            if (url && url !== 'about:blank' && url !== 'chrome://newtab/' && !url.startsWith('chrome://')) {
+              urls.push(url)
+            }
+          } catch (_) {}
+        }
+        if (urls.length > 0) {
+          fs.writeFileSync(sessionFile, JSON.stringify(urls))
+        }
+      } catch (_) {}
+    }
+    const sessionInterval = setInterval(saveSession, 30000)
+
     browser.on('disconnected', () => {
+      clearInterval(sessionInterval)
       this.runningBrowsers.delete(profileId)
       if (this.onBrowserStopped) this.onBrowserStopped(profileId)
     })
@@ -779,6 +1058,24 @@ export class ProfileManager {
   async stopBrowser(profileId) {
     const browser = this.runningBrowsers.get(profileId)
     if (browser) {
+      // Save session URLs before closing
+      try {
+        const allPages = await browser.pages()
+        const urls = []
+        for (const p of allPages) {
+          try {
+            const url = p.url()
+            if (url && url !== 'about:blank' && url !== 'chrome://newtab/' && !url.startsWith('chrome://')) {
+              urls.push(url)
+            }
+          } catch (_) {}
+        }
+        if (urls.length > 0) {
+          const userDataDir = path.join(this.profilesDir, profileId)
+          const sessionFile = path.join(userDataDir, '_lastSession.json')
+          fs.writeFileSync(sessionFile, JSON.stringify(urls))
+        }
+      } catch (_) {}
       try { await browser.close() } catch (_) {}
       this.runningBrowsers.delete(profileId)
     }
@@ -786,7 +1083,25 @@ export class ProfileManager {
   }
 
   async stopAllBrowsers() {
-    for (const [, browser] of this.runningBrowsers) {
+    for (const [profileId, browser] of this.runningBrowsers) {
+      // Save session URLs before closing
+      try {
+        const allPages = await browser.pages()
+        const urls = []
+        for (const p of allPages) {
+          try {
+            const url = p.url()
+            if (url && url !== 'about:blank' && url !== 'chrome://newtab/' && !url.startsWith('chrome://')) {
+              urls.push(url)
+            }
+          } catch (_) {}
+        }
+        if (urls.length > 0) {
+          const userDataDir = path.join(this.profilesDir, profileId)
+          const sessionFile = path.join(userDataDir, '_lastSession.json')
+          fs.writeFileSync(sessionFile, JSON.stringify(urls))
+        }
+      } catch (_) {}
       try { await browser.close() } catch (_) {}
     }
     this.runningBrowsers.clear()
