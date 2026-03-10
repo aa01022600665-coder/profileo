@@ -269,6 +269,37 @@ export const AUTOMATION_SCRIPTS = [
     ]
   },
 
+    {
+    id: 'kick-search-watch',
+    platform: 'Kick',
+    name: 'Search & Watch Channel',
+    description: 'Go to a Kick channel, handle popups, and watch the stream',
+    price: 'Free',
+    type: 'system',
+    params: [
+      { key: 'channel', label: 'Channel Name', type: 'text', placeholder: 'e.g., xQc', required: true },
+      { key: 'watchMin', label: 'Min Watch (sec)', type: 'number', default: 60, min: 10, max: 600 },
+      { key: 'watchMax', label: 'Max Watch (sec)', type: 'number', default: 300, min: 30, max: 900 },
+    ],
+    steps: [
+      { action: 'navigate', url: 'https://kick.com/{{channel}}' },
+      { action: 'wait', duration: '5-8' },
+      { action: 'clickText', text: 'Accept all', optional: true },
+      { action: 'wait', duration: '2-3' },
+      { action: 'clickText', text: 'I am 18+', optional: true },
+      { action: 'wait', duration: '2-3' },
+      { action: 'clickText', text: 'Accept all', optional: true },
+      { action: 'wait', duration: '10' },
+      { action: 'evaluate', script: 'var v=document.querySelector("video");if(v)v.click()' },
+      { action: 'wait', duration: '2' },
+      { action: 'evaluate', script: '(function(){var v=document.querySelector("video");if(!v)return;var vr=v.getBoundingClientRect();var midY=vr.top+vr.height/2;var btns=Array.from(document.querySelectorAll("button")).filter(function(b){var r=b.getBoundingClientRect();return r.width>0&&r.top>=vr.top&&r.bottom<=midY&&r.left>=vr.left&&r.right<=vr.right});btns.sort(function(a,b){return b.getBoundingClientRect().right-a.getBoundingClientRect().right});if(btns.length>0)btns[0].click()})()' },
+      { action: 'wait', duration: '3' },
+      { action: 'evaluate', script: 'var items=document.querySelectorAll("*");for(var i=0;i<items.length;i++){if(items[i].textContent.trim()==="160p"&&items[i].children.length===0){items[i].click();break}}' },
+      { action: 'wait', duration: '2-3' },
+      { action: 'wait', duration: '{{watchMin}}-{{watchMax}}' },
+    ]
+  },
+
   // ─── AMAZON ───
   {
     id: 'amazon-search-details',

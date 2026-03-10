@@ -331,6 +331,82 @@ export class AutomationEngine {
         }
         break
 
+      case 'clickText': {
+        const searchText = step.text || ''
+        const isOptional = step.optional || false
+        console.log('[Automation] clickText: looking for "' + searchText + '"')
+        try {
+          let found = false
+
+          // Method 1: Find buttons/links with matching text (most precise)
+          const clickables = await page.$$('button, a, [role="button"]')
+          console.log('[Automation] clickText: checking ' + clickables.length + ' clickable elements')
+          for (const el of clickables) {
+            const txt = await page.evaluate(b => b.textContent && b.textContent.trim(), el).catch(() => '')
+            if (txt === searchText) {
+              await el.click()
+              console.log('[Automation] clickText: CLICKED button with exact text "' + searchText + '"')
+              found = true
+              break
+            }
+          }
+
+          // Method 2: Partial match on buttons
+          if (!found) {
+            for (const el of clickables) {
+              const txt = await page.evaluate(b => b.textContent, el).catch(() => '')
+              if (txt && txt.includes(searchText) && txt.length < searchText.length + 20) {
+                await el.click()
+                console.log('[Automation] clickText: CLICKED button containing "' + searchText + '"')
+                found = true
+                break
+              }
+            }
+          }
+
+          // Method 3: Check iframes for buttons
+          if (!found) {
+            const frames = page.frames()
+            for (const frame of frames) {
+              try {
+                const frameBtns = await frame.$$('button, a, [role="button"]')
+                for (const el of frameBtns) {
+                  const txt = await frame.evaluate(b => b.textContent && b.textContent.trim(), el).catch(() => '')
+                  if (txt === searchText || (txt && txt.includes(searchText) && txt.length < searchText.length + 20)) {
+                    await el.click()
+                    console.log('[Automation] clickText: CLICKED in iframe "' + searchText + '"')
+                    found = true
+                    break
+                  }
+                }
+                if (found) break
+              } catch (_) {}
+            }
+          }
+
+          // Method 4: Fallback to text/ selector (any element)
+          if (!found) {
+            try {
+              const el = await page.waitForSelector('text/' + searchText, { timeout: 5000 })
+              if (el) {
+                await el.click()
+                console.log('[Automation] clickText: CLICKED via text/ selector fallback')
+                found = true
+              }
+            } catch (_) {}
+          }
+
+          if (!found) {
+            console.log('[Automation] clickText: NOT FOUND "' + searchText + '"')
+            if (!isOptional) throw new Error('No element with text "' + searchText + '" found')
+          }
+        } catch (err) {
+          console.log('[Automation] clickText ERROR: ' + err.message)
+          if (!isOptional) throw err
+        }
+        break
+      }
+
       case 'keypress':
         try {
           await page.keyboard.press(step.key || 'Enter')

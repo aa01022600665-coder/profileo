@@ -97,6 +97,62 @@ export async function getCloudProfileCount(email) {
   } catch (e) { return 0 }
 }
 
+// Folders sync via Firestore
+export async function saveFoldersToCloud(email, folders) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    await setDoc(doc(db, 'folders', safeEmail), {
+      folders,
+      email: email.toLowerCase(),
+      updatedAt: new Date().toISOString()
+    })
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export async function getFoldersFromCloud(email) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    const snap = await getDoc(doc(db, 'folders', safeEmail))
+    if (snap.exists()) {
+      return snap.data().folders || []
+    }
+    return null
+  } catch (e) {
+    return null
+  }
+}
+
+// Proxies sync via Firestore
+export async function saveProxiesToCloud(email, proxies) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    await setDoc(doc(db, 'proxies', safeEmail), {
+      proxies,
+      email: email.toLowerCase(),
+      updatedAt: new Date().toISOString()
+    })
+    return true
+  } catch (e) {
+    return false
+  }
+}
+
+export async function getProxiesFromCloud(email) {
+  try {
+    const safeEmail = email.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+    const snap = await getDoc(doc(db, 'proxies', safeEmail))
+    if (snap.exists()) {
+      return snap.data().proxies || []
+    }
+    return null
+  } catch (e) {
+    return null
+  }
+}
+
 // Session management — single device enforcement
 export async function saveSessionToCloud(email, sessionId) {
   try {

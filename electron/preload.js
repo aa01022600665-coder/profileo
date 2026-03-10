@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getProfiles: () => ipcRenderer.invoke('profiles:getAll'),
   createProfile: (profile) => ipcRenderer.invoke('profiles:create', profile),
   createProfilesBatch: (arr) => ipcRenderer.invoke('profiles:createBatch', arr),
+  replaceAllFromCloud: (arr) => ipcRenderer.invoke('profiles:replaceAllFromCloud', arr),
   updateProfile: (id, data) => ipcRenderer.invoke('profiles:update', id, data),
   deleteProfile: (id) => ipcRenderer.invoke('profiles:delete', id),
   deleteMultipleProfiles: (ids) => ipcRenderer.invoke('profiles:deleteMultiple', ids),

@@ -358,12 +358,13 @@ function AutomationPage({ profiles, onCreateScript, onEditScript, initialTab }) 
 
   const handleRun = async (script, profileIds, params) => {
     setRunDialogScript(null)
-    for (const pid of profileIds) {
+    for (let i = 0; i < profileIds.length; i++) {
       try {
-        await window.electronAPI.runAutomationScript(pid, script.id, params)
+        await window.electronAPI.runAutomationScript(profileIds[i], script.id, params)
       } catch (e) {
         console.error('Run script failed:', e)
       }
+      if (i < profileIds.length - 1) await new Promise(r => setTimeout(r, 3000))
     }
   }
 

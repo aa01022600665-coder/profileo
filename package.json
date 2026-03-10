@@ -1,6 +1,6 @@
 {
   "name": "profileo",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Browser Profile Manager - Desktop Application",
   "main": "out/main/main.js",
   "scripts": {

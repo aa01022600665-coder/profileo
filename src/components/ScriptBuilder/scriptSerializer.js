@@ -18,6 +18,7 @@ function nodeToStep(node) {
     case 'closeTab': return { action: 'closeTab' }
     case 'reloadTab': return { action: 'reloadTab' }
     case 'evaluate': return { action: 'evaluate', script: config.script || '' }
+    case 'clickText': return { action: 'clickText', text: config.text || '', ...(config.optional ? { optional: true } : {}) }
     case 'keypress': return { action: 'keypress', key: config.key || '' }
     case 'loop': return { action: 'loop', selector: config.selector || '', maxIterations: config.maxIterations || '5', steps: config.childSteps || [] }
     case 'repeatBlock': return { action: 'repeatBlock', count: config.count || '1', steps: config.childSteps || [] }

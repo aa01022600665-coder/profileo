@@ -4,25 +4,23 @@ import fs from 'fs'
 import http from 'http'
 import crypto from 'crypto'
 import { fileURLToPath } from 'url'
-import { createTransport } from 'nodemailer'
 import { ProfileManager } from './profileManager.js'
 import { AutomationEngine } from './automationEngine.js'
 
 const __filename2 = fileURLToPath(import.meta.url)
 const __dirname2 = path.dirname(__filename2)
 
-// Decode obfuscated strings
-const _k = 'Pr0f1le0_S3cr3t'
-function _d(encoded) {
-  const buf = Buffer.from(encoded, 'base64')
-  let r = ''
-  for (let i = 0; i < buf.length; i++) r += String.fromCharCode(buf[i] ^ _k.charCodeAt(i % _k.length))
-  return r
+// Decode protected strings (AES-256-CBC)
+const _ak = crypto.createHash('sha256').update('Pr0f1le0_2026_v2').digest()
+const _iv = crypto.createHash('md5').update('profileo-app-iv').digest()
+function _d(enc) {
+  const d = crypto.createDecipheriv('aes-256-cbc', _ak, _iv)
+  return d.update(enc, 'base64', 'utf8') + d.final('utf8')
 }
 
 // Backend proxy (all secrets stored on Cloudflare Worker)
-const WORKER_URL = _d('OAZEFkJWSh8vIVwFG18RP19RFlhCBFFvYgNRQAVEYEQGUx8bCkI0NkEQXFcRJg==')
-const APP_SECRET = _d('IABWOUlbCAkuYWwQQVAGYwZvVAFeUw==')
+const WORKER_URL = _d('Ux8TvRaBCxzTonjLbVrnrjDzdKjqIH0L58kqYCtu6qyNNWQA14CO9L53DwCoNRQz')
+const APP_SECRET = _d('qTasmg7W6740W0LZCH4IvrKR7Vz3yTv+Ql7m7NcMp00=')
 
 function workerFetch(path, options = {}) {
   return fetch(`${WORKER_URL}${path}`, {
@@ -154,6 +152,11 @@ app.whenReady().then(() => {
     const current = profileManager.getAll()
     if (current.length + arr.length > (plan.profileLimit || 0)) throw new Error('Profile limit exceeded')
     return profileManager.createBatch(arr)
+  })
+
+  ipcMain.handle('profiles:replaceAllFromCloud', (_, arr) => {
+    if (!Array.isArray(arr) || arr.length === 0 || arr.length > 500) throw new Error('Invalid batch')
+    return profileManager.replaceAllFromCloud(arr)
   })
 
   ipcMain.handle('profiles:update', (_, id, data) => {
@@ -344,24 +347,6 @@ app.whenReady().then(() => {
         method: 'POST',
         body: JSON.stringify({ email })
       })
-      // Fallback: if Worker email sending failed, send locally
-      if (result.fallback && result.code) {
-        const transporter = createTransport({
-          service: 'gmail',
-          auth: { user: _d('JBdfBANfXAZqE1QOE1oYfhFfCw=='), pass: _d('KB1cF10LEkc7PUEEF0MAJQ==') }
-        })
-        await transporter.sendMail({
-          from: 'Profileo <noreply@getprofileo.com>',
-          to: email,
-          subject: 'Your Profileo Verification Code',
-          html: `<div style="font-family:Arial,sans-serif;max-width:400px;margin:0 auto;padding:20px;background:#0f1525;color:#d4d8e8;border-radius:10px;">
-            <h2 style="text-align:center;color:#4285f4;margin-bottom:20px;">Profileo</h2>
-            <p style="text-align:center;font-size:14px;margin-bottom:20px;">Your verification code is:</p>
-            <div style="text-align:center;font-size:32px;font-weight:bold;letter-spacing:8px;color:#fff;background:#1a2340;padding:16px;border-radius:8px;margin-bottom:20px;">${result.code}</div>
-            <p style="text-align:center;font-size:12px;color:#8892a8;">This code expires in 2 minutes. Do not share it with anyone.</p>
-          </div>`
-        })
-      }
       return { success: result.success !== false }
     } catch (e) {
       console.error('Send code failed:', e)
@@ -420,8 +405,8 @@ app.whenReady().then(() => {
       // Validate plan structure
       if (!plan || typeof plan !== 'object') return { success: false, error: 'Invalid plan' }
       if (!plan.planId || !VALID_PLANS[plan.planId]) return { success: false, error: 'Invalid plan ID' }
-      // Enforce correct profile limit from server truth
-      plan.profileLimit = VALID_PLANS[plan.planId]
+      // Enforce minimum profile limit from plan, but allow admin overrides (higher values)
+      plan.profileLimit = Math.max(VALID_PLANS[plan.planId], plan.profileLimit || 0)
       // Validate expiration date
       if (!plan.expirationDate || isNaN(new Date(plan.expirationDate).getTime())) return { success: false, error: 'Invalid expiration' }
       // Cap expiration to max 13 months from now (to prevent year 2099 abuse)

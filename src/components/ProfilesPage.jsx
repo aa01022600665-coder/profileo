@@ -159,9 +159,13 @@ function ProfilesPage({
     setSelected(new Set())
   }
 
-  const handleBulkRun = () => {
-    for (const id of selected) onLaunch(id)
+  const handleBulkRun = async () => {
+    const ids = [...selected]
     setSelected(new Set())
+    for (let i = 0; i < ids.length; i++) {
+      onLaunch(ids[i])
+      if (i < ids.length - 1) await new Promise(r => setTimeout(r, 3000))
+    }
   }
 
   const getFolderCount = (fId) => {

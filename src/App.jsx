@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, saveSessionToCloud, getSessionFromCloud } from './firebase'
+import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, saveFoldersToCloud, getFoldersFromCloud, saveProxiesToCloud, getProxiesFromCloud, saveSessionToCloud, getSessionFromCloud } from './firebase'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import AuthPage from './components/AuthPage'
 import Sidebar from './components/Sidebar'
@@ -112,6 +112,16 @@ function App() {
     }
   }, [user])
 
+  const syncFoldersToCloud = useCallback(async (foldersList) => {
+    if (!user) return
+    try { await saveFoldersToCloud(user.email, foldersList) } catch {}
+  }, [user])
+
+  const syncProxiesToCloudFn = useCallback(async (proxiesList) => {
+    if (!user) return
+    try { await saveProxiesToCloud(user.email, proxiesList) } catch {}
+  }, [user])
+
   const loadProfiles = useCallback(async () => {
     const localProfiles = await window.electronAPI.getProfiles()
 
@@ -120,17 +130,30 @@ function App() {
         const cloudProfiles = await getProfilesFromCloud(user.email)
 
         if (localProfiles.length === 0 && cloudProfiles && cloudProfiles.length > 0) {
-          // Local is empty, restore from cloud (batch for speed)
-          await window.electronAPI.createProfilesBatch(cloudProfiles)
+          // Local is empty, restore from cloud
+          await window.electronAPI.replaceAllFromCloud(cloudProfiles)
           const restored = await window.electronAPI.getProfiles()
           setProfiles(restored)
-          // Re-sync restored profiles back to cloud with new IDs
           await syncProfilesToCloud(restored)
           return
         }
 
+        if (cloudProfiles && cloudProfiles.length > 0 && localProfiles.length > 0) {
+          // Both have data — compare timestamps to pick the newer one
+          const cloudLatest = Math.max(...cloudProfiles.map(p => new Date(p.updatedAt || 0).getTime()))
+          const localLatest = Math.max(...localProfiles.map(p => new Date(p.updatedAt || 0).getTime()))
+
+          if (cloudLatest > localLatest) {
+            // Cloud is newer (changed on another device) — restore from cloud
+            await window.electronAPI.replaceAllFromCloud(cloudProfiles)
+            const restored = await window.electronAPI.getProfiles()
+            setProfiles(restored)
+            return
+          }
+        }
+
         if (localProfiles.length > 0) {
-          // Sync local profiles to cloud
+          // Local is newer or same — sync to cloud
           await syncProfilesToCloud(localProfiles)
         }
       } catch (e) {
@@ -142,50 +165,87 @@ function App() {
   }, [user, syncProfilesToCloud])
 
   const loadFolders = useCallback(async () => {
-    const data = await window.electronAPI.getFolders()
-    setFolders(data)
-  }, [])
+    const localFolders = await window.electronAPI.getFolders()
+    if (user) {
+      try {
+        const cloudFolders = await getFoldersFromCloud(user.email)
+        if (localFolders.length === 0 && cloudFolders && cloudFolders.length > 0) {
+          for (const f of cloudFolders) {
+            await window.electronAPI.createFolder(f)
+          }
+          const restored = await window.electronAPI.getFolders()
+          setFolders(restored)
+          await syncFoldersToCloud(restored)
+          return
+        }
+        if (localFolders.length > 0) {
+          await syncFoldersToCloud(localFolders)
+        }
+      } catch (e) {
+        console.log('[Sync] Folder sync failed:', e.message)
+      }
+    }
+    setFolders(localFolders)
+  }, [user, syncFoldersToCloud])
 
   const loadProxies = useCallback(async () => {
-    const data = await window.electronAPI.getProxies()
-    setProxies(data)
-  }, [])
+    const localProxies = await window.electronAPI.getProxies()
+    if (user) {
+      try {
+        const cloudProxies = await getProxiesFromCloud(user.email)
+        if (localProxies.length === 0 && cloudProxies && cloudProxies.length > 0) {
+          await window.electronAPI.addProxies(cloudProxies)
+          const restored = await window.electronAPI.getProxies()
+          setProxies(restored)
+          await syncProxiesToCloudFn(restored)
+          return
+        }
+        if (localProxies.length > 0) {
+          await syncProxiesToCloudFn(localProxies)
+        }
+      } catch (e) {
+        console.log('[Sync] Proxy sync failed:', e.message)
+      }
+    }
+    setProxies(localProxies)
+  }, [user, syncProxiesToCloudFn])
 
   const loadBillingPlan = useCallback(async () => {
     try {
       if (!user) { setBillingPlan(null); return }
-      // 1. Check local plan first
+      // 1. Load local and cloud plans
       const localPlan = await window.electronAPI.getBillingPlan(user.email)
-      if (localPlan) {
-        const now = new Date()
-        const exp = new Date(localPlan.expirationDate)
-        localPlan.isActive = now < exp
-        if (localPlan.isActive) {
-          setBillingPlan(localPlan)
-          // Sync to cloud in background
-          saveBillingToCloud(user.email, localPlan).catch(() => { /* billing sync non-critical */ })
-          return
-        }
-      }
-      // 2. No local plan — fetch from Firestore cloud
+      let cloudPlan = null
       try {
-        const cloudPlan = await getBillingFromCloud(user.email)
-        if (cloudPlan) {
-          const now = new Date()
-          const exp = new Date(cloudPlan.expirationDate)
-          cloudPlan.isActive = now < exp
-          if (cloudPlan.isActive) {
-            // Save to local storage so it works offline next time
-            await window.electronAPI.saveBillingPlan(user.email, cloudPlan)
-            setBillingPlan(cloudPlan)
-            // Plan synced from cloud
-            return
-          }
-        }
+        cloudPlan = await getBillingFromCloud(user.email)
       } catch (cloudErr) {
-        console.log('[Billing] Cloud sync failed:', cloudErr.message)
+        console.log('[Billing] Cloud fetch failed:', cloudErr.message)
       }
-      setBillingPlan(localPlan || null)
+
+      // 2. Merge — always use the HIGHER profileLimit (admin may have increased it)
+      let plan = localPlan || cloudPlan
+      if (localPlan && cloudPlan) {
+        plan = { ...localPlan }
+        if ((cloudPlan.profileLimit || 0) > (localPlan.profileLimit || 0)) {
+          plan.profileLimit = cloudPlan.profileLimit
+        }
+        // Use the latest expiration date
+        if (new Date(cloudPlan.expirationDate || 0) > new Date(localPlan.expirationDate || 0)) {
+          plan.expirationDate = cloudPlan.expirationDate
+        }
+      }
+
+      if (plan) {
+        const now = new Date()
+        const exp = new Date(plan.expirationDate)
+        plan.isActive = now < exp
+        setBillingPlan(plan)
+        // Save merged plan locally and to cloud
+        await window.electronAPI.saveBillingPlan(user.email, plan).catch(() => {})
+        saveBillingToCloud(user.email, plan).catch(() => {})
+        return
+      }
+      setBillingPlan(null)
     } catch (e) { setBillingPlan(null) }
   }, [user])
 
@@ -324,29 +384,39 @@ function App() {
   // Folder actions
   const handleCreateFolder = async (data) => {
     await window.electronAPI.createFolder(data)
-    await loadFolders()
+    const updated = await window.electronAPI.getFolders()
+    setFolders(updated)
+    await syncFoldersToCloud(updated)
   }
 
   const handleDeleteFolder = async (id) => {
     await window.electronAPI.deleteFolder(id)
-    await loadFolders()
+    const updated = await window.electronAPI.getFolders()
+    setFolders(updated)
+    await syncFoldersToCloud(updated)
     if (activeFolder === id) setActiveFolder('all')
   }
 
   // Proxy actions
   const handleAddProxies = async (data) => {
     await window.electronAPI.addProxies(data)
-    await loadProxies()
+    const updated = await window.electronAPI.getProxies()
+    setProxies(updated)
+    await syncProxiesToCloudFn(updated)
   }
 
   const handleDeleteProxy = async (id) => {
     await window.electronAPI.deleteProxy(id)
-    await loadProxies()
+    const updated = await window.electronAPI.getProxies()
+    setProxies(updated)
+    await syncProxiesToCloudFn(updated)
   }
 
   const handleDeleteProxies = async (ids) => {
     await window.electronAPI.deleteMultipleProxies(ids)
-    await loadProxies()
+    const updated = await window.electronAPI.getProxies()
+    setProxies(updated)
+    await syncProxiesToCloudFn(updated)
   }
 
   const filteredProfiles = activeFolder === 'all'
