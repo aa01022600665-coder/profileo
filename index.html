@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profileo - Anti-Detect Browser for Professionals</title>
+  <meta name="description" content="Profileo is a powerful anti-detect browser with advanced fingerprinting, 38+ automation scripts, proxy management, and team collaboration. Starting at $5/month." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0e1a;
+      --bg-card: #111827;
+      --bg-card-hover: #1a2236;
+      --border: #1e293b;
+      --text: #e2e8f0;
+      --text-dim: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --green: #10b981;
+      --purple: #8b5cf6;
+      --orange: #f59e0b;
+      --pink: #ec4899;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: var(--accent-hover); }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10, 14, 26, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-size: 1.5rem; font-weight: 800; color: #fff;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: #fff;
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+    .nav-links a { color: var(--text-dim); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta {
+      background: var(--accent); color: #fff; padding: 8px 20px;
+      border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--accent-hover); color: #fff; transform: translateY(-1px); }
+    .nav-hamburger {
+      display: none; background: none; border: none; color: #fff;
+      font-size: 1.5rem; cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 140px 0 80px; text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 60%);
+    }
+    .hero-badge {
+      display: inline-block; padding: 6px 16px; border-radius: 50px;
+      background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent); font-size: 0.85rem; font-weight: 600; margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-size: 3.5rem; font-weight: 800; line-height: 1.1;
+      margin-bottom: 20px;
+      background: linear-gradient(to right, #fff, #94a3b8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { font-size: 1.2rem; color: var(--text-dim); max-width: 600px; margin: 0 auto 36px; }
+    .hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #fff; padding: 14px 32px;
+      border-radius: 10px; font-weight: 700; font-size: 1rem;
+      border: none; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 6px 30px var(--accent-glow); }
+    .btn-secondary {
+      background: transparent; color: var(--text); padding: 14px 32px;
+      border-radius: 10px; font-weight: 600; font-size: 1rem;
+      border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .hero-stats {
+      display: flex; justify-content: center; gap: 48px; margin-top: 60px;
+      padding-top: 40px; border-top: 1px solid var(--border);
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .num { font-size: 2rem; font-weight: 800; color: #fff; }
+    .hero-stat .label { font-size: 0.85rem; color: var(--text-dim); margin-top: 4px; }
+
+    /* SCREENSHOT */
+    .screenshot {
+      margin: 60px auto 0; max-width: 900px;
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      padding: 3px;
+    }
+    .screenshot-inner {
+      background: linear-gradient(135deg, #111827, #1a2236);
+      border-radius: 13px; padding: 40px;
+      text-align: center; color: var(--text-dim);
+      min-height: 300px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    /* FEATURES */
+    .features { padding: 100px 0; }
+    .section-label {
+      text-align: center; color: var(--accent); font-size: 0.85rem;
+      font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px;
+    }
+    .section-title {
+      text-align: center; font-size: 2.5rem; font-weight: 800; margin-bottom: 16px;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--text-dim); font-size: 1.1rem;
+      max-width: 600px; margin: 0 auto 60px;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    }
+    .feature-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .feature-card:hover {
+      border-color: rgba(59,130,246,0.3);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .feature-icon.blue { background: rgba(59,130,246,0.15); }
+    .feature-icon.green { background: rgba(16,185,129,0.15); }
+    .feature-icon.purple { background: rgba(139,92,246,0.15); }
+    .feature-icon.orange { background: rgba(245,158,11,0.15); }
+    .feature-icon.pink { background: rgba(236,72,153,0.15); }
+    .feature-icon.cyan { background: rgba(6,182,212,0.15); }
+    .feature-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { color: var(--text-dim); font-size: 0.9rem; line-height: 1.6; }
+
+    /* PLATFORMS */
+    .platforms {
+      padding: 80px 0;
+      background: linear-gradient(180deg, transparent, rgba(59,130,246,0.03), transparent);
+    }
+    .platforms-row {
+      display: flex; justify-content: center; align-items: center;
+      gap: 40px; flex-wrap: wrap; margin-top: 40px;
+    }
+    .platform-item {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: var(--text-dim); font-size: 0.85rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .platform-item:hover { color: #fff; }
+    .platform-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; transition: all 0.3s;
+    }
+    .platform-item:hover .platform-icon {
+      border-color: rgba(59,130,246,0.4);
+      transform: translateY(-2px);
+    }
+
+    /* PRICING */
+    .pricing { padding: 100px 0; }
+    .pricing-toggle {
+      display: flex; justify-content: center; gap: 8px; margin-bottom: 48px;
+      background: var(--bg-card); border-radius: 10px; padding: 4px;
+      width: fit-content; margin-left: auto; margin-right: auto;
+      border: 1px solid var(--border);
+    }
+    .pricing-toggle button {
+      padding: 8px 20px; border-radius: 8px; border: none;
+      background: transparent; color: var(--text-dim); cursor: pointer;
+      font-size: 0.9rem; font-weight: 600; transition: all 0.2s;
+    }
+    .pricing-toggle button.active {
+      background: var(--accent); color: #fff;
+    }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;
+      align-items: start;
+    }
+    .pricing-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 20px; text-align: center;
+      transition: all 0.3s; position: relative;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .pricing-card.popular {
+      border-color: var(--accent);
+      box-shadow: 0 0 30px var(--accent-glow);
+    }
+    .pricing-badge {
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      background: var(--accent); color: #fff; padding: 4px 14px;
+      border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+    }
+    .pricing-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .pricing-profiles { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 16px; }
+    .pricing-price {
+      font-size: 2.2rem; font-weight: 800; margin-bottom: 4px;
+    }
+    .pricing-price span { font-size: 0.9rem; font-weight: 500; color: var(--text-dim); }
+    .pricing-original {
+      color: var(--text-dim); font-size: 0.85rem; text-decoration: line-through;
+      margin-bottom: 8px; min-height: 20px;
+    }
+    .pricing-features {
+      list-style: none; text-align: left; margin: 20px 0;
+      font-size: 0.85rem; color: var(--text-dim);
+    }
+    .pricing-features li {
+      padding: 6px 0; display: flex; align-items: center; gap: 8px;
+    }
+    .pricing-features li::before {
+      content: '\2713'; color: var(--green); font-weight: 700; font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .pricing-btn {
+      display: block; width: 100%; padding: 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      color: var(--text); font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .pricing-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .pricing-card.popular .pricing-btn {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .pricing-card.popular .pricing-btn:hover { background: var(--accent-hover); }
+    .pricing-note {
+      text-align: center; margin-top: 32px; color: var(--text-dim); font-size: 0.9rem;
+    }
+
+    /* COMPARISON */
+    .comparison { padding: 80px 0; }
+    .comparison-table {
+      width: 100%; border-collapse: collapse;
+      background: var(--bg-card); border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--border);
+    }
+    .comparison-table th, .comparison-table td {
+      padding: 14px 20px; text-align: center;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .comparison-table th {
+      background: rgba(59,130,246,0.08);
+      font-weight: 700; color: #fff;
+    }
+    .comparison-table td:first-child {
+      text-align: left; font-weight: 600; color: var(--text);
+    }
+    .comparison-table .highlight {
+      background: rgba(59,130,246,0.05);
+      color: var(--accent); font-weight: 700;
+    }
+    .comparison-table .check { color: var(--green); font-weight: 700; }
+    .comparison-table .cross { color: #ef4444; }
+
+    /* FAQ */
+    .faq { padding: 100px 0; }
+    .faq-grid { max-width: 800px; margin: 0 auto; }
+    .faq-item {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      margin-bottom: 12px; overflow: hidden;
+      background: var(--bg-card);
+    }
+    .faq-question {
+      width: 100%; padding: 18px 24px; border: none;
+      background: transparent; color: var(--text);
+      font-size: 1rem; font-weight: 600; text-align: left;
+      cursor: pointer; display: flex; justify-content: space-between;
+      align-items: center; transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--accent); }
+    .faq-question .arrow {
+      font-size: 0.8rem; transition: transform 0.3s; color: var(--text-dim);
+    }
+    .faq-item.open .faq-question .arrow { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+    }
+    .faq-answer-inner {
+      padding: 0 24px 18px; color: var(--text-dim); font-size: 0.9rem; line-height: 1.7;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; }
+
+    /* CTA */
+    .cta {
+      padding: 80px 0; text-align: center;
+      background: radial-gradient(ellipse at 50% 100%, rgba(59,130,246,0.1) 0%, transparent 60%);
+    }
+    .cta h2 { font-size: 2.5rem; font-weight: 800; margin-bottom: 16px; }
+    .cta p { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 32px; }
+
+    /* FOOTER */
+    footer {
+      padding: 40px 0; border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; gap: 32px; margin-bottom: 20px; }
+    .footer-links a { color: var(--text-dim); font-size: 0.9rem; }
+    .footer-links a:hover { color: #fff; }
+    .footer-copy { color: #475569; font-size: 0.85rem; }
+
+    /* ANIMATIONS */
+    .fade-in {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* MOBILE */
+    @media (max-width: 1024px) {
+      .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: block; }
+      .nav-links.open {
+        display: flex; flex-direction: column;
+        position: absolute; top: 64px; left: 0; right: 0;
+        background: rgba(10,14,26,0.95); backdrop-filter: blur(20px);
+        padding: 24px; gap: 16px; border-bottom: 1px solid var(--border);
+      }
+      .hero h1 { font-size: 2.2rem; }
+      .hero p { font-size: 1rem; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
+      .comparison-table { font-size: 0.8rem; }
+      .comparison-table th, .comparison-table td { padding: 10px 8px; }
+      .platforms-row { gap: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <div class="nav-logo-icon">P</div>
+        Profileo
+      </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#platforms">Platforms</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#comparison">Compare</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://github.com/AA01022600665-coder/profileo/releases/latest" class="nav-cta" target="_blank" rel="noopener">&#11015; Download</a></li>
+      </ul>
+      <button class="nav-hamburger" id="hamburger" aria-label="Menu">&#9776;</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">Trusted Anti-Detect Browser</div>
+      <h1>Manage Multiple Accounts<br>Without Getting Detected</h1>
+      <p>Advanced browser fingerprinting, built-in automation scripts, and team collaboration. The most affordable anti-detect browser on the market.</p>
+      <div class="hero-buttons">
+        <a href="https://github.com/AA01022600665-coder/profileo/releases/latest" class="btn-primary" target="_blank" rel="noopener">&#11015; Download Now</a>
+        <a href="#pricing" class="btn-secondary">View Pricing</a>
+        <a href="#features" class="btn-secondary">See Features</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num">38+</div>
+          <div class="label">Automation Scripts</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">30+</div>
+          <div class="label">Fingerprint Options</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">10+</div>
+          <div class="label">Platforms Supported</div>
+        </div>
+        <div class="hero-stat">
+          <div class="num">350+</div>
+          <div class="label">Crypto Coins Accepted</div>
+        </div>
+      </div>
+      <div class="screenshot">
+        <div class="screenshot-inner">
+          [ App Screenshot - Replace with actual screenshot of Profileo dashboard ]
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything You Need</h2>
+      <p class="section-subtitle">Powerful tools for multi-account management, automation, and privacy.</p>
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon blue">&#128274;</div>
+          <h3>Advanced Fingerprinting</h3>
+          <p>Canvas, WebGL, Audio, ClientRects masking. 30+ OS/browser combos, custom user agents, screen resolutions, timezones, and languages.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon green">&#127760;</div>
+          <h3>Proxy Management</h3>
+          <p>Support for HTTP, SOCKS4, and SOCKS5 proxies. Bulk import, tagging, expiration tracking, and per-profile proxy assignment.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon purple">&#9889;</div>
+          <h3>38+ Automation Scripts</h3>
+          <p>Pre-built scripts for YouTube, Twitch, Kick, Amazon, eBay, Facebook, and more. Run on multiple profiles simultaneously.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon orange">&#128101;</div>
+          <h3>Team Collaboration</h3>
+          <p>Share profiles with team members. Assign roles, organize with folders, and manage access. Up to unlimited team members.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon pink">&#9729;&#65039;</div>
+          <h3>Cloud Sync</h3>
+          <p>Access your profiles from any device. Automatic cloud backup and sync keeps everything in sync across your workstations.</p>
+        </div>
+        <div class="feature-card fade-in">
+          <div class="feature-icon cyan">&#128736;&#65039;</div>
+          <h3>Visual Script Builder</h3>
+          <p>Build custom automation scripts with a drag-and-drop visual editor. No coding required. Navigate, click, type, loop, and more.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section class="platforms" id="platforms">
+    <div class="container">
+      <div class="section-label">Platforms</div>
+      <h2 class="section-title">Works Everywhere</h2>
+      <p class="section-subtitle">Pre-built automation scripts and optimized fingerprints for all major platforms.</p>
+      <div class="platforms-row">
+        <div class="platform-item">
+          <div class="platform-icon">&#9654;</div>
+          <span>YouTube</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#127918;</div>
+          <span>Twitch</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#9889;</div>
+          <span>Kick</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#128722;</div>
+          <span>Amazon</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#128176;</div>
+          <span>eBay</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#128100;</div>
+          <span>Facebook</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#128247;</div>
+          <span>Instagram</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#127925;</div>
+          <span>TikTok</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#128269;</div>
+          <span>Google</span>
+        </div>
+        <div class="platform-item">
+          <div class="platform-icon">&#120143;</div>
+          <span>X (Twitter)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing" id="pricing">
+    <div class="container">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title">Simple, Affordable Pricing</h2>
+      <p class="section-subtitle">The most competitive pricing in the anti-detect browser market. Pay with 350+ cryptocurrencies.</p>
+
+      <div class="pricing-toggle">
+        <button class="active" data-period="1">Monthly</button>
+        <button data-period="3">3 Months <small>-20%</small></button>
+        <button data-period="6">6 Months <small>-30%</small></button>
+        <button data-period="12">Yearly <small>-50%</small></button>
+      </div>
+
+      <div class="pricing-grid" id="pricingGrid">
+        <!-- Populated by JS -->
+      </div>
+
+      <p class="pricing-note">All plans include a 3-day money-back guarantee. Pay securely with crypto.</p>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="comparison" id="comparison">
+    <div class="container">
+      <div class="section-label">Compare</div>
+      <h2 class="section-title">How We Stack Up</h2>
+      <p class="section-subtitle">See how Profileo compares to other anti-detect browsers.</p>
+      <div style="overflow-x: auto;">
+        <table class="comparison-table fade-in">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th class="highlight">Profileo</th>
+              <th>Multilogin</th>
+              <th>GoLogin</th>
+              <th>AdsPower</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Starting Price</td>
+              <td class="highlight">$5/mo</td>
+              <td>$99/mo</td>
+              <td>$49/mo</td>
+              <td>$9/mo</td>
+            </tr>
+            <tr>
+              <td>100 Profiles Plan</td>
+              <td class="highlight">$19.99/mo</td>
+              <td>$99/mo</td>
+              <td>$99/mo</td>
+              <td>$50/mo</td>
+            </tr>
+            <tr>
+              <td>Built-in Automation</td>
+              <td class="highlight"><span class="check">38+ Scripts</span></td>
+              <td><span class="cross">&#10007;</span></td>
+              <td><span class="cross">&#10007;</span></td>
+              <td><span class="check">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Visual Script Builder</td>
+              <td class="highlight"><span class="check">&#10003;</span></td>
+              <td><span class="cross">&#10007;</span></td>
+              <td><span class="cross">&#10007;</span></td>
+              <td><span class="check">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Canvas/WebGL Masking</td>
+              <td class="highlight"><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Team Collaboration</td>
+              <td class="highlight"><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Crypto Payments</td>
+              <td class="highlight"><span class="check">350+ Coins</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="cross">&#10007;</span></td>
+            </tr>
+            <tr>
+              <td>Cloud Sync</td>
+              <td class="highlight"><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+              <td><span class="check">&#10003;</span></td>
+            </tr>
+            <tr>
+              <td>Yearly Discount</td>
+              <td class="highlight">50%</td>
+              <td>25%</td>
+              <td>30%</td>
+              <td>20%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <div class="container">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <p class="section-subtitle">Everything you need to know about Profileo.</p>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <button class="faq-question">
+            What is an anti-detect browser?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">An anti-detect browser allows you to create multiple browser profiles, each with a unique digital fingerprint. This means each profile appears as a completely different device to websites, making it perfect for managing multiple accounts safely.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What payment methods do you accept?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">We accept 350+ cryptocurrencies including Bitcoin (BTC), USDT, Ethereum (ETH), Litecoin, and many more through our secure payment processor NOWPayments.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Can I use Profileo for affiliate marketing?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Yes! Profileo is widely used by affiliate marketers to manage multiple ad accounts, social media profiles, and e-commerce accounts. Our automation scripts save hours of manual work.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            How many profiles can I create?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Depending on your plan: Mini (5 profiles), Starter (30), Base (100), Team (300), or Business (1000). Each profile has its own unique fingerprint, cookies, and session data.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What operating systems are supported?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Profileo runs on Windows. Each browser profile can emulate different operating systems (Windows, macOS, Linux, Android, iOS) with matching fingerprints regardless of your actual OS.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Can I use my own proxies?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Absolutely. Profileo supports HTTP, SOCKS4, and SOCKS5 proxies. You can bulk import proxies, tag them, track expiration dates, and assign them to specific profiles. The proxy manager makes it easy to organize hundreds of proxies.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What are automation scripts?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">Automation scripts perform actions automatically in your browser profiles. For example, watching YouTube videos, scrolling through social media feeds, or browsing e-commerce sites. We include 38+ pre-built scripts, and you can create your own with our visual script builder.</div>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Is there a free trial?
+            <span class="arrow">&#9660;</span>
+          </button>
+          <div class="faq-answer">
+            <div class="faq-answer-inner">We offer a 3-day money-back guarantee on all plans. Try Profileo risk-free. If it's not for you, we'll refund your payment - no questions asked.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to Scale Your Operations?</h2>
+      <p>Join thousands of professionals who trust Profileo for multi-account management.</p>
+      <a href="https://github.com/AA01022600665-coder/profileo/releases/latest" class="btn-primary" target="_blank" rel="noopener">&#11015; Download Profileo</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="https://github.com/AA01022600665-coder/profileo/releases/latest" target="_blank" rel="noopener">Download</a>
+        <a href="https://t.me/profileo" target="_blank" rel="noopener">Telegram</a>
+        <a href="mailto:support@getprofileo.com">Contact</a>
+      </div>
+      <p class="footer-copy">&copy; 2026 Profileo. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+    navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => navLinks.classList.remove('open'));
+    });
+
+    // Pricing
+    const plans = [
+      { name: 'Mini', profiles: 5, price: 5, features: ['5 browser profiles', '5 automation scripts', '1 team member', 'Basic proxy support', 'Fingerprint customization'] },
+      { name: 'Starter', profiles: 30, price: 9.99, features: ['30 browser profiles', '15 automation scripts', '1 team member', 'Proxy manager', 'Cookie import/export'] },
+      { name: 'Base', profiles: 100, price: 19.99, popular: true, features: ['100 browser profiles', 'Unlimited scripts', '3 team members', 'Cloud sync', 'API access'] },
+      { name: 'Team', profiles: 300, price: 29.99, features: ['300 browser profiles', 'Unlimited scripts', '10 team members', 'Cloud sync + API', 'Priority support'] },
+      { name: 'Business', profiles: 1000, price: 69.99, features: ['1000 browser profiles', 'Unlimited everything', 'Unlimited members', 'Custom integrations', 'Priority support'] }
+    ];
+    const discounts = { 1: 0, 3: 0.20, 6: 0.30, 12: 0.50 };
+    const periodLabels = { 1: '/mo', 3: '/mo', 6: '/mo', 12: '/mo' };
+    let currentPeriod = 1;
+
+    function renderPricing() {
+      const grid = document.getElementById('pricingGrid');
+      grid.innerHTML = plans.map(plan => {
+        const discount = discounts[currentPeriod];
+        const discountedPrice = plan.price * (1 - discount);
+        const displayPrice = discountedPrice.toFixed(2);
+        const originalPrice = discount > 0 ? `$${plan.price.toFixed(2)}/mo` : '';
+        return `
+          <div class="pricing-card ${plan.popular ? 'popular' : ''}">
+            ${plan.popular ? '<div class="pricing-badge">Most Popular</div>' : ''}
+            <h3>${plan.name}</h3>
+            <div class="pricing-profiles">${plan.profiles} profiles</div>
+            <div class="pricing-original">${originalPrice}</div>
+            <div class="pricing-price">$${displayPrice}<span>${periodLabels[currentPeriod]}</span></div>
+            <ul class="pricing-features">
+              ${plan.features.map(f => `<li>${f}</li>`).join('')}
+            </ul>
+            <button class="pricing-btn" onclick="document.getElementById('pricing').scrollIntoView()">Choose ${plan.name}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.querySelectorAll('.pricing-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pricing-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentPeriod = parseInt(btn.dataset.period);
+        renderPricing();
+      });
+    });
+    renderPricing();
+
+    // FAQ
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
