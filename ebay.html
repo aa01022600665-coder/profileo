@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L725727G6C"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L725727G6C');</script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eBay Multi-Account Management - Profileo Anti-Detect Browser</title>
+  <meta name="description" content="Manage multiple eBay seller and buyer accounts safely with Profileo anti-detect browser. Unique fingerprints, proxy support, and automation for eBay sellers and dropshippers.">
+  <meta name="keywords" content="ebay multi account, ebay anti-detect browser, multiple ebay accounts, ebay seller automation, ebay stealth accounts, profileo ebay, ebay account management, ebay dropshipping">
+  <meta name="author" content="Profileo">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://getprofileo.com/ebay.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://getprofileo.com/ebay.html">
+  <meta property="og:title" content="eBay Multi-Account Management - Profileo">
+  <meta property="og:description" content="Manage multiple eBay accounts safely with unique browser fingerprints and built-in automation.">
+  <meta property="og:image" content="https://getprofileo.com/assets/icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/icon.png">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Profileo","item":"https://getprofileo.com"},{"@type":"ListItem","position":2,"name":"eBay","item":"https://getprofileo.com/ebay.html"}]}</script>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-container">
+      <a href="/" class="logo">
+        <img src="assets/icon.png" alt="Profileo" class="logo-icon">
+        <span>Profileo</span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="/features.html">Features</a></li>
+        <li><a href="/automation.html">Automation</a></li>
+        <li><a href="/pricing.html">Pricing</a></li>
+        <li><a href="/faq.html">FAQ</a></li>
+        <li class="mobile-only"><a href="#" id="loginBtnMobile">Login</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost" id="loginBtn">Login</a>
+        <a href="https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.2.0.exe" class="btn btn-primary">Download for Windows</a>
+        <div class="user-info" id="userInfo" style="display:none">
+          <div class="user-avatar" id="userAvatar"></div>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="dropdown-name" id="dropdownName"></div>
+            <div class="dropdown-email" id="dropdownEmail"></div>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item" id="dropdownSettings">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              Settings
+            </a>
+            <a href="#" class="dropdown-item dropdown-logout" id="dropdownLogout">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </a>
+          </div>
+        </div>
+        <button class="mobile-menu" id="mobileMenu" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PLATFORM HERO -->
+  <section class="platform-hero">
+    <div class="platform-hero-glow" style="background:radial-gradient(circle,rgba(0,100,210,.1),transparent 70%)"></div>
+    <div class="container">
+      <div class="platform-hero-grid">
+        <div class="platform-hero-content">
+          <div class="platform-badge" style="background:rgba(0,100,210,.08);border-color:rgba(0,100,210,.2)">
+            <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#E53238" d="M7.3 2.8c-1.6 0-3.1.8-3.1 2.7 0 3.5 5 2.8 5 4.4 0 .5-.5.9-1.4.9-1.3 0-2.4-.6-3.2-1.3L3 12c1.1 1 2.7 1.5 4.2 1.5 1.9 0 3.5-.9 3.5-2.8 0-3.7-5-3-5-4.5 0-.4.4-.8 1.2-.8 1 0 2 .4 2.7 1l1.4-2.3C10 3.2 8.6 2.8 7.3 2.8zm7.6.2l-2 10.3h2.5l.7-3.5h1.7c2.2 0 3.7-1.3 4.1-3.3.4-1.9-.5-3.5-2.8-3.5h-4.2zm2.9 2h1.2c.8 0 1.2.4 1 1.2-.2.9-.8 1.4-1.7 1.4h-1.2l.7-2.6z"/><path fill="#0064D2" d="M1.6 14.3L0 21.2h2.5l.6-2.7h1.6c2 0 3.5-1.2 3.9-3.1.4-1.9-.4-3.3-2.6-3.3H1.6l.7-2.2h-.7v4.4zm2.3 1.6l-.5 2.5h1.2c.8 0 1.4-.4 1.5-1.2.2-.8-.2-1.3-1-1.3h-1.2z"/><path fill="#F5AF02" d="M11.4 14.3L9.7 21.2h2.5l1.7-6.9h-2.5z"/><path fill="#009E2A" d="M15.5 14.3l-1.7 6.9h2.5l.7-3h1.3c2 0 3.4-1.1 3.8-3 .4-1.8-.4-3-2.4-3h-4.2v2.1zm2.2 0h1c.7 0 1.1.3 1 1-.2.8-.7 1.2-1.5 1.2h-1.1l.6-2.2z"/></svg>
+            <span style="color:#0064D2">eBay Platform</span>
+          </div>
+          <h1>Multi-Account Management for <span class="gradient-text" style="background:linear-gradient(135deg,#E53238,#0064D2,#F5AF02,#009E2A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">eBay</span></h1>
+          <p>Run multiple eBay seller and buyer accounts simultaneously with unique browser fingerprints. Manage listings, auctions, and storefronts across multiple accounts without detection.</p>
+          <div class="platform-hero-actions">
+            <a href="https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.2.0.exe" class="btn btn-primary btn-lg">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Profileo
+            </a>
+            <a href="/pricing.html" class="btn btn-ghost btn-lg">View Pricing</a>
+          </div>
+        </div>
+        <div class="platform-hero-visual">
+          <div class="platform-icon-large" style="background:rgba(0,100,210,.06);border-color:rgba(0,100,210,.15);box-shadow:0 40px 80px rgba(0,100,210,.1)">
+            <svg width="90" height="90" viewBox="0 0 24 24"><path fill="#E53238" d="M7.3 2.8c-1.6 0-3.1.8-3.1 2.7 0 3.5 5 2.8 5 4.4 0 .5-.5.9-1.4.9-1.3 0-2.4-.6-3.2-1.3L3 12c1.1 1 2.7 1.5 4.2 1.5 1.9 0 3.5-.9 3.5-2.8 0-3.7-5-3-5-4.5 0-.4.4-.8 1.2-.8 1 0 2 .4 2.7 1l1.4-2.3C10 3.2 8.6 2.8 7.3 2.8zm7.6.2l-2 10.3h2.5l.7-3.5h1.7c2.2 0 3.7-1.3 4.1-3.3.4-1.9-.5-3.5-2.8-3.5h-4.2zm2.9 2h1.2c.8 0 1.2.4 1 1.2-.2.9-.8 1.4-1.7 1.4h-1.2l.7-2.6z"/><path fill="#0064D2" d="M1.6 14.3L0 21.2h2.5l.6-2.7h1.6c2 0 3.5-1.2 3.9-3.1.4-1.9-.4-3.3-2.6-3.3H1.6l.7-2.2h-.7v4.4zm2.3 1.6l-.5 2.5h1.2c.8 0 1.4-.4 1.5-1.2.2-.8-.2-1.3-1-1.3h-1.2z"/><path fill="#F5AF02" d="M11.4 14.3L9.7 21.2h2.5l1.7-6.9h-2.5z"/><path fill="#009E2A" d="M15.5 14.3l-1.7 6.9h2.5l.7-3h1.3c2 0 3.4-1.1 3.8-3 .4-1.8-.4-3-2.4-3h-4.2v2.1zm2.2 0h1c.7 0 1.1.3 1 1-.2.8-.7 1.2-1.5 1.2h-1.1l.6-2.2z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- USE CASES -->
+  <section class="section">
+    <div class="container">
+      <span class="section-tag">Use Cases</span>
+      <h2 class="section-title">Why Use Profileo for <span class="gradient-text" style="background:linear-gradient(135deg,#E53238,#0064D2,#F5AF02,#009E2A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">eBay</span></h2>
+      <p class="section-subtitle">Everything you need to manage multiple eBay accounts safely and efficiently</p>
+
+      <div class="features-grid" style="margin-top:48px">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(229,50,56,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E53238" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          </div>
+          <h3>Multiple Seller Accounts</h3>
+          <p>Operate multiple eBay seller accounts for different product categories or markets. Each account runs in an isolated profile with unique fingerprints to prevent linking.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(0,100,210,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0064D2" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </div>
+          <h3>Avoid Detection & Bans</h3>
+          <p>Each profile has unique canvas, WebGL, audio context, and hardware fingerprints. eBay cannot link your accounts together, keeping every seller account safe.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(245,175,2,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F5AF02" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          </div>
+          <h3>eBay Dropshipping</h3>
+          <p>Run multiple eBay dropshipping stores across different niches. Each store operates independently with separate browser identities and IP addresses.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(0,158,42,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#009E2A" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+          </div>
+          <h3>Auction Sniping</h3>
+          <p>Monitor and bid on auctions from multiple buyer accounts. Each account has a unique identity, ensuring your bidding strategies remain separate and undetectable.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(229,50,56,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#E53238" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          </div>
+          <h3>Proxy Integration</h3>
+          <p>Assign different proxies to each eBay account for unique IP addresses. Supports HTTP, HTTPS, SOCKS5 protocols with automatic IP rotation for each marketplace.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon" style="background:rgba(0,100,210,.1)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0064D2" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>Built-in Automation</h3>
+          <p>Automate repetitive eBay tasks like listing products, relisting, price management, and order processing with ready-made Puppeteer scripts.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" style="background:var(--bg2)">
+    <div class="container">
+      <span class="section-tag">How It Works</span>
+      <h2 class="section-title">Get Started in <span class="gradient-text">3 Simple Steps</span></h2>
+      <p class="section-subtitle">Start managing multiple eBay accounts in minutes</p>
+
+      <div class="features-grid" style="margin-top:48px;grid-template-columns:repeat(3,1fr)">
+        <div class="feature-card" style="text-align:center">
+          <div class="feature-icon" style="background:rgba(229,50,56,.12);margin:0 auto 20px">
+            <span style="font-size:24px;font-weight:800;color:#E53238">1</span>
+          </div>
+          <h3>Create Profiles</h3>
+          <p>Create a separate browser profile for each eBay account. Each profile gets unique fingerprints automatically generated by Profileo.</p>
+        </div>
+
+        <div class="feature-card" style="text-align:center">
+          <div class="feature-icon" style="background:rgba(0,100,210,.12);margin:0 auto 20px">
+            <span style="font-size:24px;font-weight:800;color:#0064D2">2</span>
+          </div>
+          <h3>Add Proxies</h3>
+          <p>Assign a different proxy to each profile for unique IP addresses. This ensures eBay sees each account as a completely different user.</p>
+        </div>
+
+        <div class="feature-card" style="text-align:center">
+          <div class="feature-icon" style="background:rgba(0,158,42,.12);margin:0 auto 20px">
+            <span style="font-size:24px;font-weight:800;color:#009E2A">3</span>
+          </div>
+          <h3>Launch & Go</h3>
+          <p>Open your profiles and log in to your eBay accounts. Run them all simultaneously — selling, buying, and managing without limits.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KEY FEATURES -->
+  <section class="section">
+    <div class="container">
+      <span class="section-tag">Key Features</span>
+      <h2 class="section-title">Powerful Tools for <span class="gradient-text" style="background:linear-gradient(135deg,#E53238,#0064D2);-webkit-background-clip:text;-webkit-text-fill-color:transparent">eBay Sellers</span></h2>
+
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px">
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(229,50,56,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E53238" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">Unique Canvas Fingerprint</h3>
+            <p style="font-size:.9rem">Every profile renders canvas differently, so eBay can never match your accounts.</p>
+          </div>
+        </div>
+
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(0,100,210,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0064D2" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">WebGL Spoofing</h3>
+            <p style="font-size:.9rem">Different WebGL renderer and vendor for each profile to prevent GPU-based tracking.</p>
+          </div>
+        </div>
+
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(245,175,2,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#F5AF02" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">Audio Context Protection</h3>
+            <p style="font-size:.9rem">Audio fingerprint randomization prevents cross-account detection via audio API.</p>
+          </div>
+        </div>
+
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(0,158,42,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#009E2A" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">Timezone & Language Match</h3>
+            <p style="font-size:.9rem">Auto-match timezone and language to your proxy location for consistent identity.</p>
+          </div>
+        </div>
+
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(229,50,56,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E53238" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">Cookie Isolation</h3>
+            <p style="font-size:.9rem">Complete session isolation — cookies, localStorage, and cache are separate per profile.</p>
+          </div>
+        </div>
+
+        <div class="feature-card" style="display:flex;gap:16px;align-items:flex-start">
+          <div style="flex-shrink:0;width:40px;height:40px;border-radius:10px;background:rgba(0,100,210,.1);display:flex;align-items:center;justify-content:center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0064D2" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          </div>
+          <div>
+            <h3 style="margin-bottom:8px;font-size:1rem">Puppeteer Automation</h3>
+            <p style="font-size:.9rem">Automate eBay tasks with built-in scripts or write your own custom Puppeteer automation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Ready to Scale Your eBay Business?</h2>
+        <p>Download Profileo and start managing multiple eBay accounts safely today. Free plan available.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.2.0.exe" class="btn btn-primary btn-lg">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download for Windows
+          </a>
+          <a href="/pricing.html" class="btn btn-ghost btn-lg">View Pricing</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="logo">
+            <img src="assets/icon.png" alt="Profileo" class="logo-icon">
+            <span>Profileo</span>
+          </a>
+          <p>Anti-detect browser for safe multi-account management. Create unique browser fingerprints for every profile.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Product</h4>
+          <a href="/features.html">Features</a>
+          <a href="/automation.html">Automation</a>
+          <a href="/pricing.html">Pricing</a>
+          <a href="/faq.html">FAQ</a>
+        </div>
+        <div class="footer-links">
+          <h4>Company</h4>
+          <a href="/about.html">About Us</a>
+          <a href="/blog.html">Blog</a>
+          <a href="/guides.html">Guides</a>
+        </div>
+        <div class="footer-links">
+          <h4>Legal</h4>
+          <a href="/privacy.html">Privacy Policy</a>
+          <a href="/terms.html">Terms of Service</a>
+          <a href="/refund.html">Refund Policy</a>
+        </div>
+        <div class="footer-links">
+          <h4>Contact</h4>
+          <a href="mailto:support@getprofileo.com">support@getprofileo.com</a>
+          <a href="/about.html">About Us</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Profileo. All rights reserved.</span>
+        <div class="footer-social">
+          <a href="#" aria-label="Twitter"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="Telegram"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0h-.056zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
+          <a href="#" aria-label="Discord"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- AUTH MODAL -->
+  <div class="auth-overlay" id="authOverlay">
+    <div class="auth-modal">
+      <button class="auth-close" id="authClose">&times;</button>
+      <div class="auth-tabs" id="authTabs">
+        <button class="auth-tab active" id="tabLogin">Sign In</button>
+        <button class="auth-tab" id="tabRegister">Create Account</button>
+      </div>
+      <div class="auth-error" id="authError"></div>
+      <div class="auth-success" id="authSuccess"></div>
+      <form class="auth-form" id="loginForm">
+        <div class="form-group"><label>EMAIL</label><input type="email" id="loginEmail" placeholder="Enter your email" required></div>
+        <div class="form-group"><label>PASSWORD</label><input type="password" id="loginPassword" placeholder="Enter your password" required></div>
+        <div class="auth-forgot-row"><button type="button" class="auth-forgot" id="showForgot">Forgot Password?</button></div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginSubmit" data-label="Sign In">Sign In</button>
+        <div class="auth-divider"><span>OR</span></div>
+        <button type="button" class="auth-google-btn" id="googleSignInLogin"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+      </form>
+      <form class="auth-form" id="registerForm" style="display:none">
+        <div class="form-group"><label>EMAIL</label><input type="email" id="regEmail" placeholder="Enter your email" required></div>
+        <div class="form-group"><label>NAME</label><input type="text" id="regName" placeholder="Enter your name" required></div>
+        <div class="form-group"><label>PASSWORD</label><input type="password" id="regPassword" placeholder="Create a password" required></div>
+        <div class="form-group"><label>CONFIRM PASSWORD</label><input type="password" id="regConfirmPassword" placeholder="Confirm your password" required></div>
+        <button type="submit" class="btn btn-primary btn-block" id="registerSubmit" data-label="Create Account">Create Account</button>
+        <div class="auth-divider"><span>OR</span></div>
+        <button type="button" class="auth-google-btn" id="googleSignInRegister"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Continue with Google</button>
+      </form>
+      <form class="auth-form" id="forgotForm" style="display:none">
+        <div class="form-group"><label>EMAIL</label><input type="email" id="forgotEmail" placeholder="Enter your email" required></div>
+        <button type="submit" class="btn btn-primary btn-block" id="forgotSubmit" data-label="Send Reset Link">Send Reset Link</button>
+        <button type="button" class="auth-back-link" id="backToLogin"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back to Sign In</button>
+      </form>
+      <div id="verifyView" style="display:none">
+        <div class="verify-header">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 4 12 13 2 4"/></svg>
+          <h3>Verify Your Email</h3>
+          <p>We sent a 6-digit code to <strong id="verifyEmailDisplay"></strong></p>
+        </div>
+        <div class="verify-code-inputs" id="otpContainer">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+          <input type="text" class="verify-code-input" maxlength="1" inputmode="numeric">
+        </div>
+        <button class="btn btn-primary btn-block" id="verifySubmit" data-label="Verify Code">Verify Code</button>
+        <div class="verify-timer-row">
+          <span id="verifyTimer"></span>
+          <button class="auth-resend-btn" id="resendBtn" style="display:none">Resend Code</button>
+        </div>
+        <button type="button" class="auth-back-link" id="backFromVerify"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg> Back to Sign In</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="settings-overlay" id="settingsOverlay">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <div class="settings-title"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg> SETTINGS</div>
+        <button class="auth-close" id="settingsClose">&times;</button>
+      </div>
+      <div class="settings-field"><label class="settings-label">EMAIL</label><input type="email" class="settings-input" id="settingsEmail" readonly></div>
+      <div class="settings-field settings-name-row"><div class="settings-name-input"><label class="settings-label">NAME</label><input type="text" class="settings-input" id="settingsName" placeholder="Your name"></div><button class="btn btn-primary settings-save-btn" id="settingsSaveName">Save</button></div>
+      <div class="settings-field"><label class="settings-label">PLAN</label><div class="settings-plan-row"><span id="settingsPlanText">Free</span><a href="/pricing.html" class="settings-upgrade-btn" id="settingsUpgrade">Upgrade plan <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div></div>
+      <div class="settings-divider"></div>
+      <div class="settings-section-title">CHANGE PASSWORD</div>
+      <p class="settings-section-desc">Enter all the fields below if you want to change your password</p>
+      <div class="settings-field"><label class="settings-label">RECENT PASSWORD</label><input type="password" class="settings-input" id="settingsOldPassword" placeholder="Enter your recent password here"></div>
+      <div class="settings-field"><label class="settings-label">NEW PASSWORD</label><input type="password" class="settings-input" id="settingsNewPassword" placeholder="Enter new password here"></div>
+      <div class="settings-field"><label class="settings-label">CONFIRM NEW PASSWORD</label><input type="password" class="settings-input" id="settingsConfirmPassword" placeholder="Re-enter new password here"></div>
+      <button class="btn btn-primary settings-change-btn" id="settingsChangePassword">Change</button>
+      <div class="settings-msg" id="settingsMsg"></div>
+    </div>
+  </div>
+
+  <script src="script.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
+  <script src="auth.min.js"></script>
+  <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="147aa39c-daa6-4822-9733-7a360d384bb1";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
+</body>
+</html>
