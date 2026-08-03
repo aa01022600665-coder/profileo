@@ -4,22 +4,15 @@
 
   const slides = [...carousel.querySelectorAll('[data-partner-slide]')]
   const controls = [...carousel.querySelectorAll('[data-partner-direction]')]
-  const progress = carousel.querySelector('[data-partner-progress]')
   const delay = 7000
 
-  if (slides.length < 2 || controls.length === 0 || !progress) return
+  if (slides.length < 2 || controls.length === 0) return
 
   let activeIndex = slides.findIndex(slide => slide.classList.contains('is-active'))
   let autoAdvanceId
   let isPaused = false
 
   if (activeIndex < 0) activeIndex = 0
-
-  const restartProgress = () => {
-    progress.classList.remove('is-running')
-    void progress.offsetWidth
-    progress.classList.add('is-running')
-  }
 
   const showSlide = nextIndex => {
     activeIndex = (nextIndex + slides.length) % slides.length
@@ -37,10 +30,8 @@
 
   const startAutoAdvance = () => {
     stopAutoAdvance()
-    restartProgress()
     autoAdvanceId = window.setInterval(() => {
       showSlide(activeIndex + 1)
-      restartProgress()
     }, delay)
   }
 
