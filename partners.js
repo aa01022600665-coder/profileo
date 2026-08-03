@@ -1,11 +1,25 @@
 (() => {
-  const slides = [...document.querySelectorAll('[data-partner-slide]')]
-  const controls = [...document.querySelectorAll('[data-partner-direction]')]
+  const carousel = document.querySelector('[data-partner-carousel]')
+  if (!carousel || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-  if (slides.length < 2 || controls.length === 0) return
+  const slides = [...carousel.querySelectorAll('[data-partner-slide]')]
+  const controls = [...carousel.querySelectorAll('[data-partner-direction]')]
+  const progress = carousel.querySelector('[data-partner-progress]')
+  const delay = 7000
+
+  if (slides.length < 2 || controls.length === 0 || !progress) return
 
   let activeIndex = slides.findIndex(slide => slide.classList.contains('is-active'))
+  let autoAdvanceId
+  let isPaused = false
+
   if (activeIndex < 0) activeIndex = 0
+
+  const restartProgress = () => {
+    progress.classList.remove('is-running')
+    void progress.offsetWidth
+    progress.classList.add('is-running')
+  }
 
   const showSlide = nextIndex => {
     activeIndex = (nextIndex + slides.length) % slides.length
@@ -17,10 +31,52 @@
     })
   }
 
+  const stopAutoAdvance = () => {
+    window.clearInterval(autoAdvanceId)
+  }
+
+  const startAutoAdvance = () => {
+    stopAutoAdvance()
+    restartProgress()
+    autoAdvanceId = window.setInterval(() => {
+      showSlide(activeIndex + 1)
+      restartProgress()
+    }, delay)
+  }
+
+  const pauseCarousel = () => {
+    if (isPaused) return
+    isPaused = true
+    carousel.classList.add('is-paused')
+    stopAutoAdvance()
+  }
+
+  const resumeCarousel = () => {
+    if (!isPaused) return
+    isPaused = false
+    carousel.classList.remove('is-paused')
+    startAutoAdvance()
+  }
+
   controls.forEach(control => {
     control.addEventListener('click', () => {
       const offset = control.dataset.partnerDirection === 'next' ? 1 : -1
       showSlide(activeIndex + offset)
+      startAutoAdvance()
     })
   })
+
+  carousel.addEventListener('mouseenter', pauseCarousel)
+  carousel.addEventListener('mouseleave', resumeCarousel)
+  carousel.addEventListener('focusin', pauseCarousel)
+  carousel.addEventListener('focusout', event => {
+    if (!carousel.contains(event.relatedTarget)) resumeCarousel()
+  })
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseCarousel()
+    else resumeCarousel()
+  })
+
+  startAutoAdvance()
 })()

@@ -1,60 +1,70 @@
 .partner-strip {
-  padding: 42px 24px 46px;
+  padding: 40px 24px 42px;
   border-bottom: 1px solid rgba(135, 106, 255, 0.16);
-  background: linear-gradient(90deg, rgba(11, 9, 28, 0.98), rgba(20, 13, 44, 0.98), rgba(8, 10, 24, 0.98));
+  background:
+    linear-gradient(90deg, rgba(10, 9, 23, 0.99), rgba(17, 14, 37, 0.99), rgba(7, 10, 22, 0.99));
 }
 
 .partner-shell {
   display: grid;
-  grid-template-columns: 46px minmax(0, 1fr) 46px;
+  grid-template-columns: 50px minmax(0, 1fr) 50px;
   align-items: center;
-  gap: 16px;
-  width: min(100%, 960px);
+  gap: 18px;
+  width: min(100%, 1,050px);
   margin: 0 auto;
 }
 
 .partner-viewport {
-  min-height: 118px;
+  min-width: 0;
 }
 
 .partner-slide {
   display: none;
-  grid-template-columns: 56px minmax(0, 1fr) auto;
+  grid-template-columns: 60px minmax(0, 1fr) auto;
   align-items: center;
   gap: 18px;
-  min-height: 118px;
+  min-height: 116px;
   padding: 20px 22px;
-  border: 1px solid rgba(126, 96, 245, 0.38);
+  border: 1px solid rgba(126, 96, 245, 0.46);
   border-radius: 8px;
-  background: linear-gradient(112deg, rgba(20, 17, 50, 0.98) 0%, rgba(16, 38, 66, 0.98) 50%, rgba(10, 14, 34, 0.98) 100%);
-  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.26);
+  background: linear-gradient(110deg, rgba(24, 21, 55, 0.98), rgba(15, 43, 67, 0.96) 56%, rgba(13, 18, 41, 0.98));
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .partner-slide.is-active {
   display: grid;
-  animation: partner-fade-in 220ms ease-out;
+  animation: partner-fade-in 360ms ease-out;
 }
 
 .partner-mark {
   display: grid;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   place-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 8px;
-  color: #fff;
-  font-size: 29px;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  background: #10182c;
+  box-shadow: 0 9px 22px rgba(0, 0, 0, 0.22);
+}
+
+.partner-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .partner-mark-kick {
-  background: linear-gradient(135deg, #1e8f5d, #65e88d);
-  color: #07180f;
+  background: #0d1710;
 }
 
-.partner-mark-nexus {
-  background: linear-gradient(135deg, #4a2ddd, #68d9ff);
+.partner-mark-kick img {
+  padding: 5px;
+}
+
+.partner-mark-nexus img {
+  object-fit: cover;
 }
 
 .partner-copy {
@@ -63,7 +73,7 @@
 
 .partner-eyebrow {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
   color: #8aa4ff;
   font-size: 11px;
   font-weight: 800;
@@ -73,14 +83,14 @@
 
 .partner-copy h2 {
   margin: 0;
-  color: #f4f4ff;
+  color: #f7f7ff;
   font-size: clamp(19px, 2.3vw, 25px);
   line-height: 1.15;
 }
 
 .partner-copy p {
   margin: 6px 0 0;
-  color: #b8b8d7;
+  color: #c0c5e1;
   font-size: 14px;
   line-height: 1.45;
 }
@@ -90,86 +100,131 @@
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-height: 42px;
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 17px;
+  border: 1px solid transparent;
   border-radius: 7px;
-  color: #0a1024;
+  color: #071321;
   font-size: 14px;
   font-weight: 800;
   line-height: 1;
   text-decoration: none;
   white-space: nowrap;
-  transition: transform 160ms ease, filter 160ms ease;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
 }
 
 .partner-link:hover,
 .partner-link:focus-visible {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
+  filter: brightness(1.06);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.26);
+}
+
+.partner-link-kick {
+  background: #67ef45;
+}
+
+.partner-link-nexus {
+  background: #58d7e9;
 }
 
 .partner-link:focus-visible,
 .partner-arrow:focus-visible {
-  outline: 2px solid #b579ff;
+  outline: 2px solid #d4c3ff;
   outline-offset: 3px;
-}
-
-.partner-link-kick {
-  background: #6df04a;
-}
-
-.partner-link-nexus {
-  background: #54d5e8;
 }
 
 .partner-arrow {
   display: grid;
-  width: 46px;
-  height: 46px;
+  width: 50px;
+  height: 50px;
   place-items: center;
   padding: 0;
-  border: 1px solid rgba(126, 96, 245, 0.56);
+  border: 1px solid rgba(139, 110, 255, 0.64);
   border-radius: 50%;
-  background: rgba(12, 10, 30, 0.7);
-  color: #dcd7ff;
+  background: rgba(15, 13, 39, 0.84);
+  color: #e4e0ff;
   cursor: pointer;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease;
 }
 
 .partner-arrow:hover {
-  border-color: #b579ff;
-  background: rgba(119, 75, 237, 0.24);
+  border-color: #82e6ef;
+  background: rgba(47, 103, 139, 0.42);
   color: #fff;
+  transform: translateY(-2px);
+}
+
+.partner-progress {
+  height: 3px;
+  margin: 12px 15px 0;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(191, 198, 244, 0.18);
+}
+
+.partner-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #6bed4f, #67d9ec, #9f79ff);
+}
+
+.partner-progress span.is-running {
+  animation: partner-countdown 7s linear forwards;
+}
+
+.partner-strip.is-paused .partner-progress span.is-running {
+  animation-play-state: paused;
 }
 
 @keyframes partner-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes partner-countdown {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .partner-progress {
+    display: none;
+  }
+
+  .partner-slide.is-active,
+  .partner-progress span.is-running {
+    animation: none;
+  }
 }
 
 @media (max-width: 720px) {
   .partner-strip {
-    padding: 32px 18px 36px;
+    padding: 30px 16px 34px;
   }
 
   .partner-shell {
-    grid-template-columns: 38px minmax(0, 1fr) 38px;
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
     gap: 9px;
   }
 
   .partner-slide {
-    grid-template-columns: 46px minmax(0, 1fr);
+    grid-template-columns: 48px minmax(0, 1fr);
     gap: 13px;
     min-height: 0;
     padding: 18px;
   }
 
   .partner-mark {
-    width: 46px;
-    height: 46px;
-    font-size: 24px;
+    width: 48px;
+    height: 48px;
   }
 
   .partner-copy h2 {
@@ -187,8 +242,12 @@
   }
 
   .partner-arrow {
-    width: 38px;
-    height: 38px;
-    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 21px;
+  }
+
+  .partner-progress {
+    margin-inline: 0;
   }
 }

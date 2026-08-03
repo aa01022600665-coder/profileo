@@ -256,13 +256,13 @@
   </section>
 
   <!-- PARTNER SPOTLIGHT -->
-  <section class="partner-strip" aria-labelledby="partner-title">
+  <section class="partner-strip" aria-labelledby="partner-title" data-partner-carousel>
     <div class="partner-shell">
-      <button class="partner-arrow" type="button" data-partner-direction="previous" aria-label="Show previous partner">&larr;</button>
+      <button class="partner-arrow" type="button" data-partner-direction="previous" aria-label="Show previous partner" title="Previous partner"><span aria-hidden="true">&larr;</span></button>
 
-      <div class="partner-viewport" aria-live="polite">
+      <div class="partner-viewport" aria-live="off">
         <article class="partner-slide is-active" data-partner-slide aria-hidden="false">
-          <div class="partner-mark partner-mark-kick" aria-hidden="true">K</div>
+          <div class="partner-mark partner-mark-kick"><img src="assets/kickkcip-logo.png" alt="KickKcip logo"></div>
           <div class="partner-copy">
             <span class="partner-eyebrow" id="partner-title">Partner tools</span>
             <h2>Grow creator campaigns with KickKcip</h2>
@@ -272,7 +272,7 @@
         </article>
 
         <article class="partner-slide" data-partner-slide aria-hidden="true">
-          <div class="partner-mark partner-mark-nexus" aria-hidden="true">N</div>
+          <div class="partner-mark partner-mark-nexus"><img src="assets/nexus-wallet-logo.avif" alt="Nexus Wallet logo"></div>
           <div class="partner-copy">
             <span class="partner-eyebrow">Crypto partner</span>
             <h2>Keep crypto simple with Nexus Wallet</h2>
@@ -280,9 +280,11 @@
           </div>
           <a class="partner-link partner-link-nexus" href="https://nexuswallet.org/" target="_blank" rel="noopener noreferrer">Open Nexus Wallet <span aria-hidden="true">&rarr;</span></a>
         </article>
+
+        <div class="partner-progress" aria-hidden="true"><span data-partner-progress></span></div>
       </div>
 
-      <button class="partner-arrow" type="button" data-partner-direction="next" aria-label="Show next partner">&rarr;</button>
+      <button class="partner-arrow" type="button" data-partner-direction="next" aria-label="Show next partner" title="Next partner"><span aria-hidden="true">&rarr;</span></button>
     </div>
   </section>
 
