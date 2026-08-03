@@ -65,7 +65,7 @@ img{max-width:100%;display:block}
 /* ===== APP SHOWCASE ===== */
 .app-showcase{border-radius:var(--radius-lg);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.4),0 0 100px rgba(108,92,231,.12);transition:transform .4s ease,box-shadow .4s ease}
 .app-showcase:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 50px 100px rgba(0,0,0,.5),0 0 120px rgba(108,92,231,.2)}
-.app-showcase img{width:100%;height:auto;display:block}
+.app-showcase img{width:100%;aspect-ratio:16/10;height:auto;object-fit:cover;object-position:center;display:block}
 
 /* ===== BRANDS ===== */
 .brands{padding:60px 0;border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border)}
