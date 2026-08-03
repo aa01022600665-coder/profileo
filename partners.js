@@ -1,6 +1,6 @@
 (() => {
   const carousel = document.querySelector('[data-partner-carousel]')
-  if (!carousel || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  if (!carousel) return
 
   const slides = [...carousel.querySelectorAll('[data-partner-slide]')]
   const controls = [...carousel.querySelectorAll('[data-partner-direction]')]
