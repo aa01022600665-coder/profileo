@@ -89,7 +89,16 @@ img{max-width:100%;display:block}
 .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
 .feature-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:32px;transition:all .3s}
 .feature-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 20px 40px rgba(108,92,231,.1)}
-.feature-icon{width:48px;height:48px;border-radius:12px;background:rgba(108,92,231,.1);display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--accent3)}
+.feature-icon{--feature-color:#bd80ff;--feature-surface:rgba(146,90,255,.14);position:relative;width:56px;height:56px;border:1px solid color-mix(in srgb,var(--feature-color) 34%,transparent);border-radius:12px;background:linear-gradient(145deg,color-mix(in srgb,var(--feature-color) 20%,transparent),var(--feature-surface));display:flex;align-items:center;justify-content:center;margin-bottom:20px;color:var(--feature-color);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 10px 22px rgba(0,0,0,.18);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.feature-icon::after{content:"";position:absolute;inset:7px;border:1px solid color-mix(in srgb,var(--feature-color) 18%,transparent);border-radius:8px;pointer-events:none}
+.feature-icon svg{position:relative;z-index:1;width:27px;height:27px;stroke-linecap:round;stroke-linejoin:round}
+.feature-icon--fingerprint{--feature-color:#bd80ff;--feature-surface:rgba(126,84,235,.12)}
+.feature-icon--proxy{--feature-color:#64d9ff;--feature-surface:rgba(45,151,231,.12)}
+.feature-icon--browsers{--feature-color:#a993ff;--feature-surface:rgba(118,88,228,.12)}
+.feature-icon--batch{--feature-color:#ef9dff;--feature-surface:rgba(207,86,226,.12)}
+.feature-icon--webrtc{--feature-color:#7ceec0;--feature-surface:rgba(40,185,137,.12)}
+.feature-icon--geo{--feature-color:#ffc77a;--feature-surface:rgba(230,141,45,.12)}
+.feature-card:hover .feature-icon{border-color:color-mix(in srgb,var(--feature-color) 68%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 14px 28px color-mix(in srgb,var(--feature-color) 14%,transparent);transform:translateY(-2px) scale(1.03)}
 .feature-card h3{font-size:18px;font-weight:700;margin-bottom:10px}
 .feature-card p{font-size:14px;color:var(--text-muted);line-height:1.7}
 
