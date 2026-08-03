@@ -160,11 +160,7 @@
 }
 
 .partner-progress {
-  height: 3px;
-  margin: 12px 15px 0;
-  overflow: hidden;
-  border-radius: 99px;
-  background: rgba(191, 198, 244, 0.18);
+  display: none;
 }
 
 .partner-progress span {
