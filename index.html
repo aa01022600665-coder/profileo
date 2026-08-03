@@ -32,6 +32,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="partners.css">
   <link rel="icon" type="image/png" href="assets/icon.png">
 
   <!-- Schema.org Structured Data -->
@@ -251,6 +252,37 @@
         <a href="/twitch.html" class="marquee-item" style="text-decoration:none"><img src="assets/twitch.png" alt="Twitch" width="22" height="22"><span>Twitch</span></a>
         <a href="/kick.html" class="marquee-item" style="text-decoration:none"><img src="assets/kick.svg" alt="Kick" width="22" height="22"><span>Kick</span></a>
       </div>
+    </div>
+  </section>
+
+  <!-- PARTNER SPOTLIGHT -->
+  <section class="partner-strip" aria-labelledby="partner-title">
+    <div class="partner-shell">
+      <button class="partner-arrow" type="button" data-partner-direction="previous" aria-label="Show previous partner">&larr;</button>
+
+      <div class="partner-viewport" aria-live="polite">
+        <article class="partner-slide is-active" data-partner-slide aria-hidden="false">
+          <div class="partner-mark partner-mark-kick" aria-hidden="true">K</div>
+          <div class="partner-copy">
+            <span class="partner-eyebrow" id="partner-title">Partner tools</span>
+            <h2>Grow creator campaigns with KickKcip</h2>
+            <p>Services and tools built for creator-focused campaigns.</p>
+          </div>
+          <a class="partner-link partner-link-kick" href="https://www.kickkcip.com" target="_blank" rel="noopener noreferrer">Visit KickKcip <span aria-hidden="true">&rarr;</span></a>
+        </article>
+
+        <article class="partner-slide" data-partner-slide aria-hidden="true">
+          <div class="partner-mark partner-mark-nexus" aria-hidden="true">N</div>
+          <div class="partner-copy">
+            <span class="partner-eyebrow">Crypto partner</span>
+            <h2>Keep crypto simple with Nexus Wallet</h2>
+            <p>A self-custody wallet for everyday crypto use.</p>
+          </div>
+          <a class="partner-link partner-link-nexus" href="https://nexuswallet.org/" target="_blank" rel="noopener noreferrer">Open Nexus Wallet <span aria-hidden="true">&rarr;</span></a>
+        </article>
+      </div>
+
+      <button class="partner-arrow" type="button" data-partner-direction="next" aria-label="Show next partner">&rarr;</button>
     </div>
   </section>
 
@@ -734,6 +766,7 @@
   </div>
 
   <script src="script.min.js"></script>
+  <script src="partners.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
   <script src="auth.min.js"></script>
