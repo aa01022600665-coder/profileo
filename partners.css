@@ -10,7 +10,7 @@
   grid-template-columns: 50px minmax(0, 1fr) 50px;
   align-items: center;
   gap: 18px;
-  width: min(100%, 1,050px);
+  width: min(100%, 960px);
   margin: 0 auto;
 }
 
