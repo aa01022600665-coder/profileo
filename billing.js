@@ -19,13 +19,15 @@
     { id: '12months', label: '12 Months', months: 12, discount: 0.50 },
   ]
 
-  const SUCCESS_STATUSES = ['confirmed', 'finished', 'sending', 'partially_paid', 'confirming']
+  const SUCCESS_STATUSES = ['confirmed', 'finished', 'sending']
+  const PROGRESS_STATUSES = ['confirming', 'partially_paid', 'waiting']
   const FAIL_STATUSES = ['expired', 'failed', 'refunded']
 
   let currentUser = null
   let selectedPeriod = 'monthly'
   let queuedPlanId = null
   let pollTimer = null
+  let activePendingPayment = null
 
   const $ = (selector) => document.querySelector(selector)
 
@@ -116,6 +118,11 @@
     if (status) status.innerHTML = `<div class="payment-error-msg">${message}</div>`
   }
 
+  function formatStatus(status) {
+    if (!status) return 'waiting'
+    return String(status).replace(/_/g, ' ')
+  }
+
   function renderCreating(plan, period, total) {
     showPaymentModal(`
       <div class="payment-header">
@@ -146,8 +153,21 @@
       <div class="payment-waiting" id="paymentWaiting">
         <div class="payment-spinner"></div>
         <p>Waiting for payment confirmation...</p>
+        <span class="payment-live-status">Checking NOWPayments every few seconds</span>
         <p class="payment-hint">Keep this tab open, or return after payment. The same email must be used in Profileo: <strong>${currentUser.email}</strong></p>
       </div>
+    `
+  }
+
+  function renderProgress(payment) {
+    const waiting = $('#paymentWaiting')
+    if (!waiting) return
+    const status = formatStatus(payment?.payment_status || payment?.invoiceStatus || payment?.status)
+    waiting.innerHTML = `
+      <div class="payment-spinner"></div>
+      <p>Payment detected. Confirming...</p>
+      <span class="payment-live-status">NOWPayments status: ${status}</span>
+      <p class="payment-hint">This usually completes automatically after the crypto network confirmation.</p>
     `
   }
 
@@ -201,6 +221,7 @@
     })
 
     clearPendingPayment()
+    activePendingPayment = null
     renderSuccess(planData)
   }
 
@@ -208,16 +229,34 @@
     try {
       const result = await callApi(`/payments-by-invoice?invoiceId=${encodeURIComponent(pending.invoiceId)}`, undefined, 'GET')
       const payments = result.data || []
+      const directStatus = result.payment_status || result.invoiceStatus || result.status
+      const directPayment = directStatus ? {
+        payment_status: directStatus,
+        payment_id: result.payment_id || result.id || pending.invoiceId,
+      } : null
       const success = payments.find(payment => SUCCESS_STATUSES.includes(payment.payment_status))
+        || (directPayment && SUCCESS_STATUSES.includes(directPayment.payment_status) ? directPayment : null)
       if (success) {
         clearInterval(pollTimer)
         pollTimer = null
         await activatePlan(success, pending)
         return
       }
+      const progress = payments.find(payment => PROGRESS_STATUSES.includes(payment.payment_status))
+        || (directPayment && PROGRESS_STATUSES.includes(directPayment.payment_status) ? directPayment : null)
+      if (progress) renderProgress(progress)
       if (payments.length > 0 && payments.every(payment => FAIL_STATUSES.includes(payment.payment_status))) {
         clearInterval(pollTimer)
         pollTimer = null
+        activePendingPayment = null
+        clearPendingPayment()
+        showError('Payment expired or failed. Please try again.')
+        return
+      }
+      if (directPayment && FAIL_STATUSES.includes(directPayment.payment_status)) {
+        clearInterval(pollTimer)
+        pollTimer = null
+        activePendingPayment = null
         clearPendingPayment()
         showError('Payment expired or failed. Please try again.')
       }
@@ -228,8 +267,9 @@
 
   function startPolling(pending) {
     if (pollTimer) clearInterval(pollTimer)
+    activePendingPayment = pending
     pollPayment(pending)
-    pollTimer = setInterval(() => pollPayment(pending), 8000)
+    pollTimer = setInterval(() => pollPayment(pending), 4000)
   }
 
   async function createCheckout(plan) {
@@ -330,6 +370,14 @@
       if (event.target === paymentOverlay) hidePaymentModal()
     })
   }
+
+  window.addEventListener('focus', () => {
+    if (activePendingPayment) pollPayment(activePendingPayment)
+  })
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && activePendingPayment) pollPayment(activePendingPayment)
+  })
 
   const planIds = ['mini', 'starter', 'base', 'team', 'business']
   document.querySelectorAll('.price-card').forEach((card, index) => {
