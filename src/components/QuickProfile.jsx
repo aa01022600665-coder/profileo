@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import { OS_OPTIONS } from '../config/platforms'
 
-const OS_OPTIONS = ['Windows','MacOS','Linux','Android','iOS']
 const BROWSER_OPTIONS = ['Chrome','Brave','Opera','Edge','Yandex']
 const RESOLUTIONS = ['1920x1080','1366x768','1536x864','1440x900','1280x720','1600x900','2560x1440','3840x2160']
 const LANGUAGES = ['en-US','en-GB','fr-FR','de-DE','es-ES','it-IT','pt-BR','ru-RU','ja-JP','ko-KR','zh-CN','ar-SA','tr-TR','sq-AL']

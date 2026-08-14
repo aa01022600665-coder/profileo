@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { OS_OPTIONS, normalizeOs } from '../config/platforms'
 
 const TIMEZONES = [
   'Auto (based on IP)',
@@ -20,7 +21,6 @@ const RESOLUTIONS = [
   '1920x1080','1366x768','1536x864','1440x900','1280x720',
   '1600x900','2560x1440','3840x2160','1280x1024','1024x768'
 ]
-const OS_OPTIONS = ['Windows','MacOS','Linux','Android','iOS']
 const BROWSER_OPTIONS = ['Chrome','Brave','Opera','Edge','Yandex']
 const TABS = ['Overview','Proxy','Extensions','Timezone','WebRTC','Geolocation','Advanced','Cookies','Bookmarks']
 
@@ -29,7 +29,7 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
   const [form, setForm] = useState({
     name: profile?.name || '',
     folder: profile?.folder || '',
-    os: profile?.os || 'Windows',
+    os: normalizeOs(profile?.os),
     browser: profile?.browser || 'Chrome',
     userAgentMode: 'General',
     userAgent: profile?.userAgent || '',

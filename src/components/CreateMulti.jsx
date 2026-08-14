@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
+import { OS_OPTIONS } from '../config/platforms'
 
-const OS_OPTIONS = ['Windows','MacOS','Linux','Android','iOS']
 const BROWSER_OPTIONS = ['Chrome','Brave','Opera','Edge','Yandex']
 const TIMEZONES = [
   'Auto (based on IP)',

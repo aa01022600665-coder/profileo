@@ -3,6 +3,9 @@ import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import puppeteer from 'puppeteer-core'
 
+const ANDROID_ENABLED = process.env.PROFILEO_ENABLE_ANDROID === 'true'
+const normalizeOs = (os) => (!ANDROID_ENABLED && os === 'Android' ? 'Windows' : (os || 'Windows'))
+
 export class ProfileManager {
   constructor({ dataDir, profilesDir }) {
     this.dataDir = dataDir
@@ -46,7 +49,7 @@ export class ProfileManager {
       id: uuidv4(),
       name: safeName,
       folder: data.folder || '',
-      os: data.os || 'Windows',
+      os: normalizeOs(data.os),
       browser: data.browser || 'Chrome',
       userAgent: data.userAgent || '',
       screenWidth: parseInt(data.screenWidth) || 1920,
@@ -94,6 +97,7 @@ export class ProfileManager {
     profiles[index] = {
       ...profiles[index],
       ...data,
+      os: normalizeOs(data.os || profiles[index].os),
       id: profiles[index].id,
       createdAt: profiles[index].createdAt,
       screenWidth: parseInt(data.screenWidth) || profiles[index].screenWidth,
@@ -136,7 +140,7 @@ export class ProfileManager {
         id: data.id || uuidv4(),
         name: data.name || 'Untitled Profile',
         folder: data.folder || '',
-        os: data.os || 'Windows',
+        os: normalizeOs(data.os),
         browser: data.browser || 'Chrome',
         userAgent: data.userAgent || '',
         screenWidth: parseInt(data.screenWidth) || 1920,
@@ -186,7 +190,7 @@ export class ProfileManager {
         id: uuidv4(),
         name: data.name || 'Untitled Profile',
         folder: data.folder || '',
-        os: data.os || 'Windows',
+        os: normalizeOs(data.os),
         browser: data.browser || 'Chrome',
         userAgent: data.userAgent || '',
         screenWidth: parseInt(data.screenWidth) || 1920,
@@ -240,7 +244,7 @@ export class ProfileManager {
         id: uuidv4(),
         name: `${source.name} (${i + 1})`,
         folder: source.folder || '',
-        os: options.userAgents ? source.os : 'Windows',
+        os: normalizeOs(options.userAgents ? source.os : 'Windows'),
         browser: options.userAgents ? source.browser : 'Chrome',
         userAgent: options.userAgents ? source.userAgent : '',
         screenWidth: options.fingerprint ? source.screenWidth : 1920,

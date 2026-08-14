@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { auth, getBillingFromCloud, saveBillingToCloud, saveProfilesToCloud, getProfilesFromCloud, saveFoldersToCloud, getFoldersFromCloud, saveProxiesToCloud, getProxiesFromCloud, saveSessionToCloud, getSessionFromCloud } from './firebase'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import AuthPage from './components/AuthPage'
@@ -13,6 +13,7 @@ import AutomationPage from './components/AutomationPage'
 import ScriptBuilderPage from './components/ScriptBuilder/ScriptBuilderPage'
 import BillingPage from './components/BillingPage'
 import SettingsPage from './components/SettingsPage'
+import { getVisibleFolders, getVisibleProfiles } from './config/platforms'
 import './styles/app.css'
 
 function App() {
@@ -419,9 +420,17 @@ function App() {
     await syncProxiesToCloudFn(updated)
   }
 
+  const visibleFolders = useMemo(() => getVisibleFolders(folders), [folders])
+  const visibleProfiles = useMemo(() => getVisibleProfiles(profiles), [profiles])
   const filteredProfiles = activeFolder === 'all'
-    ? profiles
-    : profiles.filter(p => p.folder === activeFolder)
+    ? visibleProfiles
+    : visibleProfiles.filter(p => p.folder === activeFolder)
+
+  useEffect(() => {
+    if (!visibleFolders.some(folder => folder.id === activeFolder)) {
+      setActiveFolder('all')
+    }
+  }, [activeFolder, visibleFolders])
 
   // Loading state
   if (authLoading) {
@@ -464,8 +473,8 @@ function App() {
           {currentView === 'profiles' && (
             <ProfilesPage
               profiles={filteredProfiles}
-              allProfiles={profiles}
-              folders={folders}
+              allProfiles={visibleProfiles}
+              folders={visibleFolders}
               activeFolder={activeFolder}
               billingPlan={billingPlan}
               onFolderSelect={setActiveFolder}
@@ -484,10 +493,10 @@ function App() {
           {currentView === 'newProfile' && (
             <NewProfile
               profile={editingProfile}
-              folders={folders}
+              folders={visibleFolders}
               proxies={proxies}
               billingPlan={billingPlan}
-              profileCount={profiles.length}
+              profileCount={visibleProfiles.length}
               onSave={editingProfile ? (data) => handleUpdate(editingProfile.id, data) : handleCreate}
               onCancel={() => { setCurrentView('profiles'); setEditingProfile(null) }}
               onNavigateToBilling={() => setCurrentView('billing')}
@@ -495,10 +504,10 @@ function App() {
           )}
           {currentView === 'createMulti' && (
             <CreateMulti
-              folders={folders}
+              folders={visibleFolders}
               proxies={proxies}
               billingPlan={billingPlan}
-              profileCount={profiles.length}
+              profileCount={visibleProfiles.length}
               onCreateBatch={handleCreateBatch}
               onDone={() => setCurrentView('profiles')}
               onNavigateToBilling={() => setCurrentView('billing')}
@@ -507,7 +516,7 @@ function App() {
           {currentView === 'quick' && (
             <QuickProfile
               billingPlan={billingPlan}
-              profileCount={profiles.length}
+              profileCount={visibleProfiles.length}
               onLaunch={handleQuickLaunch}
               onNavigateToBilling={() => setCurrentView('billing')}
             />
