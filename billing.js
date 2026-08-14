@@ -80,6 +80,22 @@
     if (key) localStorage.removeItem(key)
   }
 
+  function safeEmailKey(email) {
+    return String(email || '').toLowerCase().replace(/[^a-z0-9_-]/g, '_')
+  }
+
+  async function saveBillingToFirestore(planData) {
+    if (!firebase.firestore || !currentUser?.email) return false
+    const email = currentUser.email.toLowerCase()
+    const docId = safeEmailKey(email)
+    await firebase.firestore().collection('billing').doc(docId).set({
+      ...planData,
+      email,
+      updatedAt: new Date().toISOString(),
+    }, { merge: true })
+    return true
+  }
+
   async function callApi(path, body, method) {
     const user = firebase.auth().currentUser
     if (!user) throw new Error('Not logged in')
@@ -214,11 +230,27 @@
       source: 'web',
     }
 
-    await callApi('/billing/save', {
+    const workerSave = callApi('/billing/save', {
       email: currentUser.email,
       uid: currentUser.uid,
       plan: planData,
-    })
+    }).catch(error => ({ error }))
+
+    let firestoreSaved = false
+    try {
+      firestoreSaved = await saveBillingToFirestore(planData)
+    } catch (error) {
+      console.error('Firestore billing sync failed:', error)
+    }
+
+    const workerResult = await workerSave
+    if (!firestoreSaved) {
+      const paymentRef = planData.paymentId || planData.invoiceId || pending.invoiceId
+      throw new Error(`Payment confirmed, but account activation did not sync. Contact support with payment ID ${paymentRef}.`)
+    }
+    if (workerResult?.error) {
+      console.warn('Worker billing save failed after Firestore sync:', workerResult.error)
+    }
 
     clearPendingPayment()
     activePendingPayment = null
@@ -262,6 +294,9 @@
       }
     } catch (error) {
       console.error('Payment poll failed:', error)
+      if (String(error?.message || '').includes('account activation did not sync')) {
+        showError(error.message)
+      }
     }
   }
 
