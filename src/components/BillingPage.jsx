@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { saveBillingToCloud } from '../firebase'
+import { buildProfileoOrderId, findRestorablePayment } from '../config/billing'
 
 // ===== CONSTANTS =====
 const PLANS = [
@@ -85,19 +86,21 @@ function BillingPage({ user, onPlanUpdated }) {
     setPaymentLoading(true)
 
     try {
-      const orderId = `profileo-${plan.id}-${selectedPeriod}-${Date.now()}`
+      const orderId = buildProfileoOrderId(plan.id, selectedPeriod, user)
       const result = await window.electronAPI.createPayment({
         amount: total,
         currency: 'usd',
         orderId,
-        description: `Profileo ${plan.name} Plan - ${period.label}`
+        description: `Profileo ${plan.name} Plan - ${period.label} - ${user.email}`,
+        userEmail: user.email,
+        userUid: user.uid
       })
 
       if (result.invoice_url) {
         setPaymentUrl(result.invoice_url)
         setPaymentStatus('awaiting')
         // Start polling
-        startPolling(result.id, plan, period, total)
+        startPolling(result.id, plan, period, total, orderId)
       } else {
         setPaymentStatus('error')
       }
@@ -108,7 +111,7 @@ function BillingPage({ user, onPlanUpdated }) {
     setPaymentLoading(false)
   }
 
-  const startPolling = (invoiceId, plan, period, total) => {
+  const startPolling = (invoiceId, plan, period, total, orderId) => {
     if (pollRef.current) clearInterval(pollRef.current)
 
     const SUCCESS_STATUSES = ['confirmed', 'finished', 'sending', 'partially_paid', 'confirming']
@@ -131,6 +134,10 @@ function BillingPage({ user, onPlanUpdated }) {
         price: total,
         profileLimit: plan.profiles,
         paymentId: paymentId || invoiceId,
+        invoiceId,
+        orderId,
+        accountEmail: user.email.toLowerCase(),
+        accountUid: user.uid || '',
         isActive: true
       }
       await window.electronAPI.saveBillingPlan(user.email, planData)
@@ -219,42 +226,17 @@ function BillingPage({ user, onPlanUpdated }) {
     try {
       const result = await window.electronAPI.listPayments()
       if (result.data && result.data.length > 0) {
-        // Find the most recent finished/confirmed payment with a profileo order
-        const validPayment = result.data.find(p =>
-          (p.payment_status === 'finished' || p.payment_status === 'confirmed' || p.payment_status === 'confirming' || p.payment_status === 'sending') &&
-          p.order_id && p.order_id.startsWith('profileo-')
-        )
-        if (validPayment) {
-          // Parse order_id: profileo-{planId}-{periodId}-{timestamp}
-          const parts = validPayment.order_id.split('-')
-          const planId = parts[1]
-          const periodId = parts[2]
-          const plan = PLANS.find(p => p.id === planId)
-          const period = PERIODS.find(p => p.id === periodId)
-          if (plan && period) {
-            const createdAt = new Date(validPayment.created_at || validPayment.updated_at)
-            const expDate = new Date(createdAt)
-            expDate.setMonth(expDate.getMonth() + period.months)
-            const planData = {
-              planId: plan.id,
-              periodId: period.id,
-              startDate: createdAt.toISOString(),
-              expirationDate: expDate.toISOString(),
-              price: Math.round(plan.price * (1 - period.discount) * period.months * 100) / 100,
-              profileLimit: plan.profiles,
-              paymentId: String(validPayment.payment_id),
-              isActive: new Date() < expDate
-            }
-            await window.electronAPI.saveBillingPlan(user.email, planData)
-            await saveBillingToCloud(user.email, planData)
-            setCurrentPlan(planData)
-            if (onPlanUpdated) onPlanUpdated()
-            setRestoreMsg(`Plan restored: ${plan.name} (${period.label})`)
-          } else {
-            setRestoreMsg('Payment found but plan could not be identified.')
-          }
+        const planData = findRestorablePayment(result.data, user)
+        if (planData) {
+          await window.electronAPI.saveBillingPlan(user.email, planData)
+          await saveBillingToCloud(user.email, planData)
+          setCurrentPlan(planData)
+          if (onPlanUpdated) onPlanUpdated()
+          const plan = PLANS.find(p => p.id === planData.planId)
+          const period = PERIODS.find(p => p.id === planData.periodId)
+          setRestoreMsg(`Plan restored: ${plan?.name || planData.planId} (${period?.label || planData.periodId})`)
         } else {
-          setRestoreMsg('No completed Profileo payments found.')
+          setRestoreMsg('No completed payment found for this account.')
         }
       } else {
         setRestoreMsg('No payments found on this account.')

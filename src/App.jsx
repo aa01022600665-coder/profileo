@@ -14,6 +14,7 @@ import ScriptBuilderPage from './components/ScriptBuilder/ScriptBuilderPage'
 import BillingPage from './components/BillingPage'
 import SettingsPage from './components/SettingsPage'
 import { getVisibleFolders, getVisibleProfiles } from './config/platforms'
+import { findRestorablePayment } from './config/billing'
 import './styles/app.css'
 
 function App() {
@@ -233,6 +234,20 @@ function App() {
         // Use the latest expiration date
         if (new Date(cloudPlan.expirationDate || 0) > new Date(localPlan.expirationDate || 0)) {
           plan.expirationDate = cloudPlan.expirationDate
+        }
+      }
+
+      if (!plan || !plan.isActive || new Date(plan.expirationDate || 0) <= new Date()) {
+        try {
+          const payments = await window.electronAPI.listPayments()
+          const restoredPlan = findRestorablePayment(payments?.data || [], user)
+          if (restoredPlan) {
+            await window.electronAPI.saveBillingPlan(user.email, restoredPlan).catch(() => {})
+            saveBillingToCloud(user.email, restoredPlan).catch(() => {})
+            plan = restoredPlan
+          }
+        } catch (restoreErr) {
+          console.log('[Billing] Purchase restore check failed:', restoreErr.message)
         }
       }
 
