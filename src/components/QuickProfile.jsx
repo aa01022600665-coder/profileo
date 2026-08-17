@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { OS_OPTIONS } from '../config/platforms'
+import { BrowserOptionIcon, OsOptionIcon } from './OptionIcons'
 
 const BROWSER_OPTIONS = ['Chrome','Brave','Opera','Edge','Yandex']
 const RESOLUTIONS = ['1920x1080','1366x768','1536x864','1440x900','1280x720','1600x900','2560x1440','3840x2160']
@@ -47,7 +48,7 @@ function QuickProfile({ billingPlan, profileCount, onLaunch, onNavigateToBilling
         timezone: '',
         startUrl,
         notes: 'Quick profile - data not saved permanently',
-        webrtc: 'Altered',
+        webrtc: 'Disabled',
         geolocation: 'Prompt',
       })
     }
@@ -89,10 +90,10 @@ function QuickProfile({ billingPlan, profileCount, onLaunch, onNavigateToBilling
           <div className="quick-col">
             <div className="quick-card">
               <h3>OPERATING SYSTEM</h3>
-              <div className="chip-group">
+              <div className="chip-group icon-chip-group">
                 {OS_OPTIONS.map(o => (
-                  <button key={o} className={`chip ${os === o ? 'chip-active' : ''}`} onClick={() => setOs(o)}>
-                    {o} {os === o && <span className="chip-check">&#x2713;</span>}
+                  <button key={o} className={`chip chip-icon-only ${os === o ? 'chip-active' : ''}`} onClick={() => setOs(o)} title={o} aria-label={o}>
+                    <OsOptionIcon os={o} />
                   </button>
                 ))}
               </div>
@@ -100,10 +101,10 @@ function QuickProfile({ billingPlan, profileCount, onLaunch, onNavigateToBilling
 
             <div className="quick-card">
               <h3>BROWSER</h3>
-              <div className="chip-group">
+              <div className="chip-group icon-chip-group">
                 {BROWSER_OPTIONS.map(b => (
-                  <button key={b} className={`chip ${browser === b ? 'chip-active chip-browser' : ''}`} onClick={() => setBrowser(b)}>
-                    {b} {browser === b && <span className="chip-dot">&#x25CF;</span>}
+                  <button key={b} className={`chip chip-icon-only ${browser === b ? 'chip-active chip-browser' : ''}`} onClick={() => setBrowser(b)} title={b} aria-label={b}>
+                    <BrowserOptionIcon browser={b} />
                   </button>
                 ))}
               </div>

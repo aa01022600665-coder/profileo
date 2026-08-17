@@ -31,8 +31,8 @@ export const AUTOMATION_SCRIPTS = [
   {
     id: 'youtube-watch-live-search',
     platform: 'YouTube',
-    name: 'Search & Watch Live',
-    description: 'Search and watch live streams',
+    name: 'Search & Watch',
+    description: 'Search and watch',
     price: 'Free',
     type: 'system',
     params: [
@@ -42,16 +42,14 @@ export const AUTOMATION_SCRIPTS = [
       { key: 'watchMax', label: 'Max Watch (sec)', type: 'number', default: 120, min: 30, max: 600 },
     ],
     steps: [
-      { action: 'navigate', url: 'https://www.youtube.com/results?search_query={{keyword}}&sp=EgJAAQ%253D%253D' },
-      { action: 'wait', duration: '3-5' },
-      { action: 'loop', selector: 'ytd-video-renderer a#thumbnail', maxIterations: '{{maxStreams}}', steps: [
-        { action: 'click', selector: '__current__' },
-        { action: 'wait', duration: '{{watchMin}}-{{watchMax}}' },
-        { action: 'scroll', direction: 'down', amount: 2 },
-        { action: 'wait', duration: '3-5' },
-        { action: 'goBack' },
-        { action: 'wait', duration: '2-3' },
-      ]},
+      {
+        action: 'youtubeSearchWatchLive',
+        keyword: '{{keyword}}',
+        maxStreams: '{{maxStreams}}',
+        watchMin: '{{watchMin}}',
+        watchMax: '{{watchMax}}',
+        targetUrl: '{{targetUrl}}'
+      },
     ]
   },
   {
@@ -213,6 +211,30 @@ export const AUTOMATION_SCRIPTS = [
         { action: 'goBack' },
         { action: 'wait', duration: '2-3' },
       ]},
+    ]
+  },
+  {
+    id: 'kick-watch-comment',
+    platform: 'Kick',
+    name: 'Watch Live & Comment',
+    description: 'Watch live and comment streams on Kick',
+    price: 'Free',
+    type: 'system',
+    params: [
+      { key: 'keyword', label: 'Search Keyword', type: 'text', placeholder: 'e.g., XQC' },
+      { key: 'keywordFile', label: 'Profile .txt Search File', type: 'profileFile', accept: '.txt' },
+      { key: 'commentFile', label: 'Profile .txt Comments File', type: 'profileFile', accept: '.txt' },
+      { key: 'commentOrder', label: 'Comment Order', type: 'select', default: 'Mix', options: ['Mix', 'Random', 'Sequential'] },
+      { key: 'commentDelayMin', label: 'Min Comment Delay (sec)', type: 'number', default: 60, min: 5, max: 3600 },
+      { key: 'commentDelayMax', label: 'Max Comment Delay (sec)', type: 'number', default: 180, min: 10, max: 7200 },
+      { key: 'launchDelaySec', label: 'Launch Delay Between Profiles (sec)', type: 'number', default: 3, min: 1, max: 120 },
+    ],
+    steps: [
+      {
+        action: 'androidKickSearchWatch',
+        keyword: '{{keyword}}',
+        keywordFile: '{{keywordFile}}'
+      },
     ]
   },
   {

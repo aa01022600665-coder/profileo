@@ -1,6 +1,6 @@
 {
   "name": "profileo",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "Browser Profile Manager - Desktop Application",
   "main": "out/main/main.js",
   "scripts": {
@@ -8,14 +8,23 @@
     "dev:android": "set VITE_ENABLE_ANDROID=true&& set PROFILEO_ENABLE_ANDROID=true&& electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "dist": "electron-vite build && electron-builder --win"
+    "dist": "node scripts/ensure-profileo-browser.mjs && electron-vite build && electron-builder --win"
   },
   "build": {
     "appId": "com.profileo.app",
     "productName": "Profileo",
+    "artifactName": "Profileo.Setup.${version}.${ext}",
     "directories": {
       "output": "release"
     },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "aa01022600665-coder",
+        "repo": "profileo",
+        "releaseType": "release"
+      }
+    ],
     "win": {
       "icon": "build/icon.ico",
       "target": [
@@ -37,6 +46,29 @@
     },
     "files": [
       "out/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": ".profileo-browsers-test/chromium",
+        "to": "browsers/chromium",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/extensions/auto-click-recorder",
+        "to": "extensions/auto-click-recorder",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "resources/android-apps",
+        "to": "android-apps",
+        "filter": [
+          "**/*"
+        ]
+      }
     ]
   },
   "keywords": [],
@@ -44,10 +76,15 @@
   "license": "ISC",
   "dependencies": {
     "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
+    "@puppeteer/browsers": "^2.13.2",
     "@xyflow/react": "^12.10.1",
+    "electron-updater": "^6.8.9",
+    "extract-zip": "^2.0.1",
     "firebase": "^12.10.0",
     "nodemailer": "^8.0.1",
     "puppeteer-core": "^24.37.5",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "uuid": "^13.0.0"
   },
   "devDependencies": {

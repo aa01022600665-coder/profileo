@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { OS_OPTIONS } from '../config/platforms'
+import { BrowserOptionIcon, OsOptionIcon } from './OptionIcons'
 
 const BROWSER_OPTIONS = ['Chrome','Brave','Opera','Edge','Yandex']
 const TIMEZONES = [
@@ -41,7 +42,7 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
   const [timezone, setTimezone] = useState('Auto (based on IP)')
 
   // WebRTC
-  const [webrtc, setWebrtc] = useState('Altered')
+  const [webrtc, setWebrtc] = useState('Disabled')
 
   // Geolocation
   const [geolocation, setGeolocation] = useState('Prompt')
@@ -51,6 +52,7 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
   const [resolution, setResolution] = useState('1920x1080')
   const [clearCache, setClearCache] = useState(true)
   const [restoreSession, setRestoreSession] = useState(true)
+  const [vpsCompatibilityMode, setVpsCompatibilityMode] = useState(false)
   const [startUrl, setStartUrl] = useState('')
 
   const toggleRandomOS = (os) => {
@@ -113,6 +115,7 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
         geolocation,
         clearCache,
         restoreSession,
+        vpsCompatibilityMode,
       })
     }
 
@@ -215,20 +218,20 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
                 <>
                   <section className="np-section">
                     <h3>OPERATING SYSTEM</h3>
-                    <div className="chip-group">
+                    <div className="chip-group icon-chip-group">
                       {OS_OPTIONS.map(o => (
-                        <button key={o} className={`chip ${os === o ? 'chip-active' : ''}`} onClick={() => setOs(o)}>
-                          {o} {os === o && <span className="chip-check">&#x2713;</span>}
+                        <button key={o} className={`chip chip-icon-only ${os === o ? 'chip-active' : ''}`} onClick={() => setOs(o)} title={o} aria-label={o}>
+                          <OsOptionIcon os={o} />
                         </button>
                       ))}
                     </div>
                   </section>
                   <section className="np-section">
                     <h3>BROWSER</h3>
-                    <div className="chip-group">
+                    <div className="chip-group icon-chip-group">
                       {BROWSER_OPTIONS.map(b => (
-                        <button key={b} className={`chip ${browser === b ? 'chip-active chip-browser' : ''}`} onClick={() => setBrowser(b)}>
-                          {b} {browser === b && <span className="chip-dot">&#x25CF;</span>}
+                        <button key={b} className={`chip chip-icon-only ${browser === b ? 'chip-active chip-browser' : ''}`} onClick={() => setBrowser(b)} title={b} aria-label={b}>
+                          <BrowserOptionIcon browser={b} />
                         </button>
                       ))}
                     </div>
@@ -248,20 +251,20 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
                 <>
                   <section className="np-section">
                     <h3>SELECT OS PARAMETERS</h3>
-                    <div className="chip-group">
+                    <div className="chip-group icon-chip-group">
                       {OS_OPTIONS.map(o => (
-                        <button key={o} className={`chip ${randomOSes.includes(o) ? 'chip-active' : ''}`} onClick={() => toggleRandomOS(o)}>
-                          {o} {randomOSes.includes(o) && <span className="chip-check">&#x2713;</span>}
+                        <button key={o} className={`chip chip-icon-only ${randomOSes.includes(o) ? 'chip-active' : ''}`} onClick={() => toggleRandomOS(o)} title={o} aria-label={o}>
+                          <OsOptionIcon os={o} />
                         </button>
                       ))}
                     </div>
                   </section>
                   <section className="np-section">
                     <h3>SELECT BROWSER PARAMETERS</h3>
-                    <div className="chip-group">
+                    <div className="chip-group icon-chip-group">
                       {BROWSER_OPTIONS.map(b => (
-                        <button key={b} className={`chip ${randomBrowsers.includes(b) ? 'chip-active chip-browser' : ''}`} onClick={() => toggleRandomBrowser(b)}>
-                          {b} {randomBrowsers.includes(b) && <span className="chip-check">&#x2713;</span>}
+                        <button key={b} className={`chip chip-icon-only ${randomBrowsers.includes(b) ? 'chip-active chip-browser' : ''}`} onClick={() => toggleRandomBrowser(b)} title={b} aria-label={b}>
+                          <BrowserOptionIcon browser={b} />
                         </button>
                       ))}
                     </div>
@@ -314,7 +317,7 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
               <section className="np-section">
                 <h3>WEBRTC MODE</h3>
                 <div className="chip-group">
-                  {['Altered','Disabled','Real'].map(opt => (
+                  {['Disabled','Altered','Real'].map(opt => (
                     <button key={opt} className={`chip ${webrtc === opt ? 'chip-active' : ''}`} onClick={() => setWebrtc(opt)}>
                       {opt} {webrtc === opt && <span className="chip-check">&#x2713;</span>}
                     </button>
@@ -363,6 +366,7 @@ function CreateMulti({ folders, proxies, billingPlan, profileCount, onCreateBatc
                 </div>
                 <div className="adv-card">
                   <h4>OTHERS</h4>
+                  <label className="toggle-row"><span className={`toggle ${vpsCompatibilityMode ? 'on' : ''}`} onClick={() => setVpsCompatibilityMode(!vpsCompatibilityMode)} /><span>VPS Compatibility Mode</span></label>
                   <label className="toggle-row"><span className={`toggle ${clearCache ? 'on' : ''}`} onClick={() => setClearCache(!clearCache)} /><span>Clear Cache after shutdown</span></label>
                   <label className="toggle-row"><span className={`toggle ${restoreSession ? 'on' : ''}`} onClick={() => setRestoreSession(!restoreSession)} /><span>Restore last session</span></label>
                   <div className="form-group" style={{ marginTop: 12 }}>

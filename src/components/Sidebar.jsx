@@ -1,4 +1,5 @@
 import React from 'react'
+import { ANDROID_ENABLED } from '../config/platforms'
 
 const NAV_ITEMS = [
   { id: 'newProfile', label: 'New Profile', className: 'nav-new', icon: 'plus' },
@@ -7,6 +8,7 @@ const NAV_ITEMS = [
   { id: 'profiles', label: 'Profiles', className: 'nav-profiles', icon: 'list' },
   { id: 'proxyManager', label: 'Proxy Manager', className: 'nav-proxy', icon: 'globe' },
   { id: 'automation', label: 'Automation', className: 'nav-automation', icon: 'robot' },
+  { id: 'phoneFarm', label: 'Phone Farm', className: 'nav-phone-farm', icon: 'phone-farm' },
   { id: 'billing', label: 'Billing', className: 'nav-billing', icon: 'billing' },
 ]
 
@@ -54,6 +56,19 @@ function SideIcon({ type }) {
           <circle cx="12" cy="3" r="1.5"/>
         </svg>
       )
+    case 'phone-farm':
+      return (
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+          <rect x="4" y="3" width="6" height="9" rx="1.4"/>
+          <rect x="14" y="3" width="6" height="9" rx="1.4"/>
+          <rect x="4" y="14" width="6" height="7" rx="1.4"/>
+          <rect x="14" y="14" width="6" height="7" rx="1.4"/>
+          <line x1="6.5" y1="10" x2="7.5" y2="10"/>
+          <line x1="16.5" y1="10" x2="17.5" y2="10"/>
+          <line x1="6.5" y1="19" x2="7.5" y2="19"/>
+          <line x1="16.5" y1="19" x2="17.5" y2="19"/>
+        </svg>
+      )
     case 'billing':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -75,6 +90,10 @@ function SideIcon({ type }) {
 }
 
 function Sidebar({ currentView, onNavigate }) {
+  const navItems = ANDROID_ENABLED
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter(item => item.id !== 'phoneFarm')
+
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -89,7 +108,7 @@ function Sidebar({ currentView, onNavigate }) {
       </div>
 
       <nav className="sidebar-nav">
-        {NAV_ITEMS.map(item => (
+        {navItems.map(item => (
           <button
             key={item.id}
             className={`nav-icon-btn ${item.className} ${currentView === item.id ? 'active' : ''}`}

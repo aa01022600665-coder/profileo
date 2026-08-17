@@ -1,4 +1,6 @@
 node_modules/
+.profileo-browsers-test/
+.tmp-profileo-manager-test/
 out/
 release/
 dist/

@@ -1,9 +1,11 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell, dialog } from 'electron'
 import path from 'path'
 import fs from 'fs'
 import http from 'http'
 import crypto from 'crypto'
+import { execFile } from 'child_process'
 import { fileURLToPath } from 'url'
+import { autoUpdater } from 'electron-updater'
 import { ProfileManager } from './profileManager.js'
 import { AutomationEngine } from './automationEngine.js'
 
@@ -44,6 +46,167 @@ process.on('unhandledRejection', (err) => {
 let mainWindow
 let profileManager
 let automationEngine
+const androidScreenSizeCache = new Map()
+let updaterState = {
+  status: 'idle',
+  version: app.getVersion(),
+  message: ''
+}
+
+function cleanUpdateInfo(info = {}) {
+  return {
+    version: info.version || '',
+    releaseName: info.releaseName || '',
+    releaseDate: info.releaseDate || '',
+    files: Array.isArray(info.files) ? info.files.map(file => ({
+      url: file.url || '',
+      size: file.size || 0
+    })) : []
+  }
+}
+
+function sendUpdaterState(next = {}) {
+  updaterState = {
+    ...updaterState,
+    ...next,
+    version: app.getVersion(),
+    updatedAt: new Date().toISOString()
+  }
+
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('updates:status', updaterState)
+  }
+
+  return updaterState
+}
+
+function configureAutoUpdater() {
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = true
+  autoUpdater.allowPrerelease = false
+
+  autoUpdater.on('checking-for-update', () => {
+    sendUpdaterState({ status: 'checking', message: 'Checking for updates...' })
+  })
+
+  autoUpdater.on('update-available', info => {
+    sendUpdaterState({
+      status: 'available',
+      message: `Version ${info?.version || ''} is available`,
+      updateInfo: cleanUpdateInfo(info)
+    })
+  })
+
+  autoUpdater.on('update-not-available', info => {
+    sendUpdaterState({
+      status: 'not-available',
+      message: 'Profileo is up to date',
+      updateInfo: cleanUpdateInfo(info)
+    })
+  })
+
+  autoUpdater.on('download-progress', progress => {
+    sendUpdaterState({
+      status: 'downloading',
+      progress: Math.max(0, Math.min(100, Math.round(progress?.percent || 0))),
+      message: 'Downloading update...'
+    })
+  })
+
+  autoUpdater.on('update-downloaded', info => {
+    sendUpdaterState({
+      status: 'downloaded',
+      progress: 100,
+      message: 'Update ready to install',
+      updateInfo: cleanUpdateInfo(info)
+    })
+  })
+
+  autoUpdater.on('error', error => {
+    sendUpdaterState({
+      status: 'error',
+      message: error?.message || 'Update check failed'
+    })
+  })
+}
+
+configureAutoUpdater()
+
+function getRunningAndroidDevices() {
+  if (!profileManager) return []
+  return profileManager.getAll()
+    .map(profile => {
+      const controller = profileManager.getBrowser(profile.id)
+      if (!controller || controller.kind !== 'android-emulator') return null
+      return {
+        profileId: profile.id,
+        name: profile.name || 'Android Profile',
+        os: profile.os || 'Android',
+        browser: profile.browser || 'Chrome',
+        proxyType: profile.proxyType || 'Without Proxy',
+        serial: controller.serial,
+        avdName: controller.avdName,
+        port: controller.port,
+        status: profile.status || 'active'
+      }
+    })
+    .filter(Boolean)
+}
+
+function getAndroidController(profileId) {
+  if (!isValidId(profileId)) throw new Error('Invalid profile ID')
+  const controller = profileManager?.getBrowser(profileId)
+  if (!controller || controller.kind !== 'android-emulator') {
+    throw new Error('Android profile is not running')
+  }
+  return controller
+}
+
+function runAdb(controller, args, options = {}) {
+  return new Promise((resolve, reject) => {
+    execFile(controller.adbPath, ['-s', controller.serial, ...args], {
+      timeout: options.timeout || 12000,
+      windowsHide: true,
+      maxBuffer: options.maxBuffer || 20 * 1024 * 1024,
+      encoding: options.binary ? 'buffer' : 'utf8'
+    }, (error, stdout, stderr) => {
+      if (error) {
+        const detail = Buffer.isBuffer(stderr) ? stderr.toString('utf8') : String(stderr || '')
+        reject(new Error(detail.trim() || error.message))
+        return
+      }
+      resolve(options.binary ? Buffer.from(stdout) : `${stdout || ''}${stderr || ''}`)
+    })
+  })
+}
+
+async function getAndroidScreenSize(controller) {
+  const cacheKey = controller.serial
+  const cached = androidScreenSizeCache.get(cacheKey)
+  if (cached && Date.now() - cached.at < 10 * 60 * 1000) {
+    return cached.size
+  }
+
+  const output = await runAdb(controller, ['shell', 'wm', 'size'], { timeout: 6000 })
+  const matches = [...String(output).matchAll(/(?:Physical|Override) size:\s*(\d+)x(\d+)/g)]
+  const match = matches[matches.length - 1]
+  const size = match ? {
+    width: Number(match[1]) || 1080,
+    height: Number(match[2]) || 2400
+  } : { width: 1080, height: 2400 }
+  androidScreenSizeCache.set(cacheKey, { at: Date.now(), size })
+  return size
+}
+
+function normalizeTapPoint(point) {
+  const x = Number(point?.x)
+  const y = Number(point?.y)
+  if (!Number.isFinite(x) || !Number.isFinite(y)) throw new Error('Invalid tap point')
+  return {
+    x: Math.max(0, Math.min(1, x)),
+    y: Math.max(0, Math.min(1, y))
+  }
+}
 
 // ===== SECURITY: Rate limiter =====
 const rateLimitMap = new Map()
@@ -115,7 +278,23 @@ function createWindow() {
 app.whenReady().then(() => {
   const dataDir = path.join(app.getPath('userData'), 'data')
   const profilesDir = path.join(app.getPath('userData'), 'profiles')
-  profileManager = new ProfileManager({ dataDir, profilesDir })
+  profileManager = new ProfileManager({
+    dataDir,
+    profilesDir,
+    confirmStrictProxyLock: async () => {
+      const result = await dialog.showMessageBox(mainWindow, {
+        type: 'warning',
+        title: 'Enable Strict Proxy Lock',
+        message: 'Block direct browser traffic outside your proxy?',
+        detail: 'Profileo will add one Windows Firewall rule for its bundled browser. Websites continue through the local proxy relay, while direct Internet traffic, including WebRTC routes, is blocked. Administrator approval is required. WebRTC calls and QUIC will not work while this lock is active.',
+        buttons: ['Enable and continue', 'Cancel'],
+        defaultId: 0,
+        cancelId: 1,
+        noLink: true
+      })
+      return result.response === 0
+    }
+  })
   profileManager.onBrowserStopped = (profileId) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('profile:stopped', profileId)
@@ -126,6 +305,60 @@ app.whenReady().then(() => {
   // Current user email for billing checks (set from renderer)
   let currentUserEmail = null
   ipcMain.handle('auth:setUser', (_, email) => { currentUserEmail = email })
+
+  // App updates
+  ipcMain.handle('updates:getState', () => updaterState)
+  ipcMain.handle('updates:check', async () => {
+    if (!app.isPackaged) {
+      return sendUpdaterState({
+        status: 'disabled',
+        message: 'Updates work only in the installed app'
+      })
+    }
+
+    try {
+      await autoUpdater.checkForUpdates()
+      return updaterState
+    } catch (error) {
+      return sendUpdaterState({
+        status: 'error',
+        message: error?.message || 'Update check failed'
+      })
+    }
+  })
+
+  ipcMain.handle('updates:download', async () => {
+    if (!app.isPackaged) {
+      return sendUpdaterState({
+        status: 'disabled',
+        message: 'Updates work only in the installed app'
+      })
+    }
+
+    try {
+      sendUpdaterState({ status: 'downloading', progress: 0, message: 'Downloading update...' })
+      await autoUpdater.downloadUpdate()
+      return updaterState
+    } catch (error) {
+      return sendUpdaterState({
+        status: 'error',
+        message: error?.message || 'Update download failed'
+      })
+    }
+  })
+
+  ipcMain.handle('updates:install', () => {
+    if (!app.isPackaged) {
+      return sendUpdaterState({
+        status: 'disabled',
+        message: 'Updates work only in the installed app'
+      })
+    }
+
+    sendUpdaterState({ status: 'installing', message: 'Installing update...' })
+    setImmediate(() => autoUpdater.quitAndInstall(false, true))
+    return updaterState
+  })
 
   // Profile CRUD with server-side billing validation
   ipcMain.handle('profiles:getAll', () => profileManager.getAll())
@@ -197,6 +430,64 @@ app.whenReady().then(() => {
     return profileManager.stopBrowser(id)
   })
 
+  // Android Phone Farm
+  ipcMain.handle('phoneFarm:list', () => getRunningAndroidDevices())
+
+  ipcMain.handle('phoneFarm:screenshot', async (_, profileId) => {
+    const controller = getAndroidController(profileId)
+    const image = await runAdb(controller, ['exec-out', 'screencap', '-p'], {
+      binary: true,
+      timeout: 5000,
+      maxBuffer: 30 * 1024 * 1024
+    })
+    return {
+      success: true,
+      image: `data:image/png;base64,${image.toString('base64')}`,
+      capturedAt: Date.now()
+    }
+  })
+
+  ipcMain.handle('phoneFarm:tap', async (_, profileId, point) => {
+    const controller = getAndroidController(profileId)
+    const { x, y } = normalizeTapPoint(point)
+    const size = await getAndroidScreenSize(controller)
+    const tapX = Math.round(size.width * x)
+    const tapY = Math.round(size.height * y)
+    await runAdb(controller, ['shell', 'input', 'tap', String(tapX), String(tapY)], { timeout: 7000 })
+    return { success: true, x: tapX, y: tapY }
+  })
+
+  ipcMain.handle('phoneFarm:key', async (_, profileId, key) => {
+    const controller = getAndroidController(profileId)
+    const keyMap = {
+      back: '4',
+      home: '3',
+      recent: '187',
+      power: '26',
+      wake: '224',
+      menu: '82'
+    }
+    const keyCode = keyMap[String(key || '').toLowerCase()]
+    if (!keyCode) throw new Error('Invalid Android key')
+    await runAdb(controller, ['shell', 'input', 'keyevent', keyCode], { timeout: 7000 })
+    return { success: true }
+  })
+
+  ipcMain.handle('phoneFarm:launchApp', async (_, profileId, appName) => {
+    const controller = getAndroidController(profileId)
+    const appMap = {
+      youtube: 'com.google.android.youtube',
+      kick: 'com.kick.mobile',
+      chrome: 'com.android.chrome'
+    }
+    const packageName = appMap[String(appName || '').toLowerCase()]
+    if (!packageName) throw new Error('Invalid Android app')
+    await runAdb(controller, ['shell', 'monkey', '-p', packageName, '-c', 'android.intent.category.LAUNCHER', '1'], {
+      timeout: 12000
+    })
+    return { success: true }
+  })
+
   // Folders
   ipcMain.handle('folders:getAll', () => profileManager.getFolders())
   ipcMain.handle('folders:create', (_, data) => {
@@ -232,6 +523,17 @@ app.whenReady().then(() => {
   ipcMain.handle('automation:runScript', (_, profileId, scriptId, params) => automationEngine.runScript(profileId, scriptId, params))
   ipcMain.handle('automation:stopScript', (_, profileId) => automationEngine.stopScript(profileId))
   ipcMain.handle('automation:getStatuses', () => automationEngine.getAllStatuses())
+  ipcMain.handle('automation:selectTextFile', async () => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Choose text file',
+      properties: ['openFile'],
+      filters: [{ name: 'Text Files', extensions: ['txt'] }]
+    })
+    if (result.canceled || !result.filePaths?.[0]) return ''
+    return result.filePaths[0]
+  })
+  ipcMain.handle('automation:getProfileState', (_, scriptId, profileId) => automationEngine.getProfileState(scriptId, profileId))
+  ipcMain.handle('automation:saveProfileState', (_, scriptId, profileId, data) => automationEngine.saveProfileState(scriptId, profileId, data))
 
   // User Scripts (custom scripts CRUD)
   const userScriptsFile = path.join(dataDir, 'userScripts.json')
@@ -532,6 +834,21 @@ app.whenReady().then(() => {
 
   createWindow()
   automationEngine.setMainWindow(mainWindow)
+
+  if (app.isPackaged) {
+    setTimeout(() => {
+      autoUpdater.checkForUpdates().catch(error => {
+        sendUpdaterState({
+          status: 'error',
+          message: error?.message || 'Update check failed'
+        })
+      })
+    }, 15000)
+
+    setInterval(() => {
+      autoUpdater.checkForUpdates().catch(() => {})
+    }, 6 * 60 * 60 * 1000)
+  }
 })
 
 app.on('window-all-closed', async () => {

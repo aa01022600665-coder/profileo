@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import youtubeIcon from '../assets/brand-icons/youtube.webp'
+import kickIcon from '../assets/brand-icons/kick.gif'
 
 const PLATFORM_FILTERS = ['All', 'YouTube', 'Twitch', 'Kick', 'Amazon', 'eBay', 'Facebook', 'Google', 'Instagram', 'TikTok', 'X', 'Other']
 
@@ -102,6 +104,102 @@ function PlatformIcon({ platform, size = 32 }) {
   }
 }
 
+function PremiumPlatformIcon({ platform, size = 42 }) {
+  const key = String(platform || 'Other').toLowerCase().replace(/[^a-z0-9]+/g, '') || 'other'
+  const iconSize = Math.max(18, Math.round(size * 0.62))
+  const imageIcons = {
+    youtube: youtubeIcon,
+    kick: kickIcon
+  }
+
+  const glyphs = {
+    youtube: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M41.5 15.1a5.2 5.2 0 0 0-3.7-3.7C34.5 10.5 24 10.5 24 10.5s-10.5 0-13.8.9a5.2 5.2 0 0 0-3.7 3.7c-.9 3.3-.9 8.9-.9 8.9s0 5.6.9 8.9a5.2 5.2 0 0 0 3.7 3.7c3.3.9 13.8.9 13.8.9s10.5 0 13.8-.9a5.2 5.2 0 0 0 3.7-3.7c.9-3.3.9-8.9.9-8.9s0-5.6-.9-8.9z" fill="currentColor"/>
+        <path d="M20.4 30.1V17.9L31 24l-10.6 6.1z" fill="#fff"/>
+      </svg>
+    ),
+    twitch: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M12 9h28v19l-8 8h-7l-5 5v-5h-8V9zm5 5v17h7v4l4-4h5l4-4V14H17z" fill="currentColor"/>
+        <rect x="25" y="18" width="3" height="8" rx="1" fill="#fff"/>
+        <rect x="32" y="18" width="3" height="8" rx="1" fill="#fff"/>
+      </svg>
+    ),
+    kick: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M9 9h13v11h3.7L34 9h12L34.8 23.2 46 39H33.4l-7.6-10.7H22V39H9V9z" fill="currentColor"/>
+        <path d="M17 16h4.2v8.8h4.1l6.7-8.8h3.2l-7.9 10 7.7 10h-3.5l-6.3-8.5h-4V36H17V16z" fill="rgba(255,255,255,0.32)"/>
+      </svg>
+    ),
+    amazon: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <text x="24" y="24" textAnchor="middle" fontWeight="900" fontSize="19" fill="currentColor">a</text>
+        <path d="M15 30c3.2 3 7.1 4.5 11.6 4.5 3.5 0 6.2-.8 8.4-2.4" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        <path d="M32 31l3.5.9-.9 3.5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ),
+    ebay: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <text x="7" y="31" fontWeight="900" fontSize="17" fill="#E53238">e</text>
+        <text x="16" y="31" fontWeight="900" fontSize="17" fill="#0064D2">b</text>
+        <text x="26" y="31" fontWeight="900" fontSize="17" fill="#F5AF02">a</text>
+        <text x="36" y="31" fontWeight="900" fontSize="17" fill="#86B817">y</text>
+      </svg>
+    ),
+    facebook: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M28.5 15.5h4V9.2c-.7-.1-3.1-.3-5.9-.3-5.8 0-9.8 3.6-9.8 10.2v5.8h-6.6V32h6.6v16h8V32h6.5l1-7.1h-7.5v-5.1c0-2.1.6-4.3 3.7-4.3z" fill="currentColor"/>
+      </svg>
+    ),
+    google: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M43 24.5c0-1.4-.1-2.5-.3-3.7H24v7.1h10.9c-.2 1.8-1.4 4.6-4.1 6.5l-.1.5 5.9 4.5.4.1c3.8-3.5 6-8.7 6-15z" fill="#4285F4"/>
+        <path d="M24 44c5.4 0 10-1.8 13.3-4.8l-6.3-4.9c-1.7 1.2-4 2-7 2-5.3 0-9.8-3.5-11.4-8.2l-.5.1-6.1 4.7-.1.5C9.2 39.7 16 44 24 44z" fill="#34A853"/>
+        <path d="M12.6 28.1c-.4-1.2-.7-2.6-.7-4.1s.2-2.9.7-4.1l-.1-.5-6.2-4.8-.4.2C4.7 17.6 4 20.7 4 24s.7 6.4 1.9 9.2l6.7-5.1z" fill="#FBBC05"/>
+        <path d="M24 11.7c3.8 0 6.4 1.6 7.9 3l5.8-5.7C34.1 5.7 29.4 4 24 4 16 4 9.2 8.3 5.9 14.8l6.7 5.1c1.7-4.8 6.2-8.2 11.4-8.2z" fill="#EA4335"/>
+      </svg>
+    ),
+    instagram: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <rect x="10" y="10" width="28" height="28" rx="8" stroke="currentColor" strokeWidth="3"/>
+        <circle cx="24" cy="24" r="7" stroke="currentColor" strokeWidth="3"/>
+        <circle cx="32.5" cy="15.5" r="2.2" fill="currentColor"/>
+      </svg>
+    ),
+    tiktok: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M29 12v17.2a7.2 7.2 0 1 1-5-6.8" stroke="#25F4EE" strokeWidth="3.3" strokeLinecap="round" fill="none"/>
+        <path d="M31 12.5c1.5 3.8 4.2 6 8 6.6" stroke="#FE2C55" strokeWidth="3.3" strokeLinecap="round"/>
+        <path d="M27 12v17.2a7.2 7.2 0 1 1-5-6.8" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" fill="none"/>
+      </svg>
+    ),
+    x: (
+      <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M12 11h7.8l6 8.3 7.3-8.3h4.1L27.7 22l10.6 15H30l-6.7-9.5-8.2 9.5H11l10.3-12L12 11zm6.1 3 13.5 19h2L20.2 14h-2.1z" fill="currentColor"/>
+      </svg>
+    )
+  }
+
+  return (
+    <span
+      className={`platform-icon-shell platform-${key}`}
+      style={{ width: size, height: size, borderRadius: Math.max(12, Math.round(size * 0.3)) }}
+      aria-label={platform || 'Other'}
+    >
+      <span className="platform-icon-shine" />
+      {imageIcons[key] ? (
+        <img className="platform-icon-img" src={imageIcons[key]} alt="" draggable="false" />
+      ) : glyphs[key] || (
+        <svg width={iconSize} height={iconSize} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M24 8l13 7.5v17L24 40 11 32.5v-17L24 8z" stroke="currentColor" strokeWidth="3" strokeLinejoin="round"/>
+          <path d="M24 18v12M18 24h12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+        </svg>
+      )}
+    </span>
+  )
+}
+
 function ScriptCard({ script, onRun, onEdit, onDelete }) {
   const isUser = script.type === 'user'
 
@@ -116,7 +214,7 @@ function ScriptCard({ script, onRun, onEdit, onDelete }) {
     <div className="auto-card">
       <div className="auto-card-header">
         <div className="auto-card-icon">
-          <PlatformIcon platform={script.platform} size={36} />
+          <PremiumPlatformIcon platform={script.platform} size={46} />
         </div>
       </div>
       <p className="auto-card-desc">{script.description || script.name}</p>
@@ -136,6 +234,7 @@ function ScriptCard({ script, onRun, onEdit, onDelete }) {
 
 function RunDialog({ script, profiles, onRun, onClose }) {
   const [selectedProfiles, setSelectedProfiles] = useState([])
+  const [profileParamFiles, setProfileParamFiles] = useState({})
   const [params, setParams] = useState(() => {
     const defaults = {}
     ;(script.params || []).forEach(p => {
@@ -143,6 +242,8 @@ function RunDialog({ script, profiles, onRun, onClose }) {
     })
     return defaults
   })
+  const normalParams = (script.params || []).filter(p => p.type !== 'profileFile')
+  const profileFileParams = (script.params || []).filter(p => p.type === 'profileFile')
 
   const toggleProfile = (id) => {
     setSelectedProfiles(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id])
@@ -156,9 +257,63 @@ function RunDialog({ script, profiles, onRun, onClose }) {
     }
   }
 
-  const handleRun = () => {
+  useEffect(() => {
+    if (!profileFileParams.length || !selectedProfiles.length) return
+    let cancelled = false
+    ;(async () => {
+      const updates = {}
+      for (const profileId of selectedProfiles) {
+        const state = await window.electronAPI.getAutomationProfileState(script.id, profileId).catch(() => ({}))
+        for (const param of profileFileParams) {
+          if (state?.[param.key]) {
+            updates[profileId] = { ...(updates[profileId] || {}), [param.key]: state[param.key] }
+          }
+        }
+      }
+      if (!cancelled && Object.keys(updates).length) {
+        setProfileParamFiles(prev => ({ ...prev, ...updates }))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [script.id, selectedProfiles.join('|')])
+
+  const chooseProfileFile = async (profileId, paramKey) => {
+    const filePath = await window.electronAPI.selectAutomationTextFile().catch(() => '')
+    if (!filePath) return
+    setProfileParamFiles(prev => ({
+      ...prev,
+      [profileId]: {
+        ...(prev[profileId] || {}),
+        [paramKey]: filePath
+      }
+    }))
+    await window.electronAPI.saveAutomationProfileState(script.id, profileId, { [paramKey]: filePath }).catch(() => {})
+  }
+
+  const handleRun = async () => {
     if (selectedProfiles.length === 0) return
-    onRun(script, selectedProfiles, params)
+    const missingParam = normalParams.find(p => p.required && !String(params[p.key] ?? '').trim())
+    if (missingParam) {
+      alert(`${missingParam.label} is required`)
+      return
+    }
+    if (profileFileParams.length) {
+      const missingProfileId = selectedProfiles.find(profileId => {
+        return profileFileParams.some(param => {
+          if (param.key === 'keywordFile' || param.key === 'commentFile') return false
+          return param.required && !String(profileParamFiles[profileId]?.[param.key] || '').trim()
+        })
+      })
+      if (missingProfileId) {
+        const profileName = profiles.find(profile => profile.id === missingProfileId)?.name || 'selected profile'
+        alert(`Required .txt file is missing for ${profileName}`)
+        return
+      }
+    }
+    onRun(script, selectedProfiles, {
+      ...params,
+      __profileFileParams: profileParamFiles
+    })
   }
 
   return (
@@ -193,23 +348,65 @@ function RunDialog({ script, profiles, onRun, onClose }) {
             </div>
           </div>
 
-          {script.params && script.params.length > 0 && (
+          {normalParams.length > 0 && (
             <div className="form-group" style={{ marginTop: 12 }}>
               <label>Parameters</label>
-              {script.params.map(p => (
+              {normalParams.map(p => (
                 <div key={p.key} style={{ marginBottom: 8 }}>
                   <label style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 3, display: 'block' }}>{p.label}{p.required && ' *'}</label>
-                  <input
-                    type={p.type === 'number' ? 'number' : 'text'}
-                    className="np-input"
-                    placeholder={p.placeholder || ''}
-                    value={params[p.key] || ''}
-                    min={p.min}
-                    max={p.max}
-                    onChange={e => setParams(prev => ({ ...prev, [p.key]: p.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value }))}
-                  />
+                  {p.type === 'select' ? (
+                    <select
+                      className="np-input"
+                      value={params[p.key] || p.default || ''}
+                      onChange={e => setParams(prev => ({ ...prev, [p.key]: e.target.value }))}
+                    >
+                      {(p.options || []).map(option => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={p.type === 'number' ? 'number' : 'text'}
+                      className="np-input"
+                      placeholder={p.placeholder || ''}
+                      value={params[p.key] || ''}
+                      min={p.min}
+                      max={p.max}
+                      onChange={e => setParams(prev => ({ ...prev, [p.key]: p.type === 'number' ? parseInt(e.target.value) || 0 : e.target.value }))}
+                    />
+                  )}
                 </div>
               ))}
+            </div>
+          )}
+
+          {profileFileParams.length > 0 && selectedProfiles.length > 0 && (
+            <div className="form-group" style={{ marginTop: 12 }}>
+              <label>Profile Text Files</label>
+              <div className="auto-profile-list" style={{ maxHeight: 180 }}>
+                {selectedProfiles.map(profileId => {
+                  const profile = profiles.find(item => item.id === profileId)
+                  return (
+                    <div key={profileId} className="auto-profile-item selected">
+                      <span style={{ flex: 1 }}>{profile?.name || profileId}</span>
+                      {profileFileParams.map(param => {
+                        const value = profileParamFiles[profileId]?.[param.key] || ''
+                        return (
+                          <button
+                            key={param.key}
+                            className="btn btn-ghost btn-sm"
+                            onClick={() => chooseProfileFile(profileId, param.key)}
+                            title={value || param.label}
+                            style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                          >
+                            {value ? `${param.label.replace('Profile .txt ', '').replace(' File', '')}: ${value.split(/[\\/]/).pop()}` : param.key === 'keywordFile' ? 'Search .txt' : 'Comments .txt'}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 
@@ -298,7 +495,7 @@ function UserScriptsTable({ scripts, onRun, onEdit, onDelete }) {
           {scripts.map(script => (
             <tr key={script.id}>
               <td className="us-name">
-                <PlatformIcon platform={script.platform} size={22} />
+                <PremiumPlatformIcon platform={script.platform} size={28} />
                 <span>{script.name || 'Untitled'}</span>
               </td>
               <td className="us-tag">{script.tags || '—'}</td>
@@ -321,14 +518,14 @@ function UserScriptsTable({ scripts, onRun, onEdit, onDelete }) {
   )
 }
 
-function AutomationPage({ profiles, onCreateScript, onEditScript, initialTab }) {
+function AutomationPage({ profiles, automationStatuses, onCreateScript, onEditScript, initialTab }) {
   const [scripts, setScripts] = useState([])
   const [userScripts, setUserScripts] = useState([])
   const [activeTab, setActiveTab] = useState(initialTab || 'system')
   const [activePlatform, setActivePlatform] = useState('All')
   const [search, setSearch] = useState('')
   const [runDialogScript, setRunDialogScript] = useState(null)
-  const [statuses, setStatuses] = useState({})
+  const [statuses, setStatuses] = useState(automationStatuses || {})
 
   const loadUserScripts = () => {
     window.electronAPI.getUserScripts().then(list => {
@@ -350,6 +547,10 @@ function AutomationPage({ profiles, onCreateScript, onEditScript, initialTab }) 
     return unsub
   }, [])
 
+  useEffect(() => {
+    setStatuses(automationStatuses || {})
+  }, [automationStatuses])
+
   const allScripts = activeTab === 'user' ? userScripts : scripts
   const filtered = allScripts
     .filter(s => activeTab === 'system' ? s.type === 'system' : true)
@@ -358,13 +559,19 @@ function AutomationPage({ profiles, onCreateScript, onEditScript, initialTab }) 
 
   const handleRun = async (script, profileIds, params) => {
     setRunDialogScript(null)
+    const launchDelaySec = Math.max(1, Math.min(120, Number(params.launchDelaySec) || 3))
     for (let i = 0; i < profileIds.length; i++) {
       try {
-        await window.electronAPI.runAutomationScript(profileIds[i], script.id, params)
+        const profileParams = {
+          ...params,
+          ...(params.__profileFileParams?.[profileIds[i]] || {})
+        }
+        delete profileParams.__profileFileParams
+        await window.electronAPI.runAutomationScript(profileIds[i], script.id, profileParams)
       } catch (e) {
         console.error('Run script failed:', e)
       }
-      if (i < profileIds.length - 1) await new Promise(r => setTimeout(r, 3000))
+      if (i < profileIds.length - 1) await new Promise(r => setTimeout(r, launchDelaySec * 1000))
     }
   }
 

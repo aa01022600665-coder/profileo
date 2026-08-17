@@ -14,6 +14,7 @@ import ScriptBuilderPage from './components/ScriptBuilder/ScriptBuilderPage'
 import BillingPage from './components/BillingPage'
 import SettingsPage from './components/SettingsPage'
 import { getVisibleFolders, getVisibleProfiles } from './config/platforms'
+import PhoneFarmPage from './components/PhoneFarmPage'
 import { findRestorablePayment } from './config/billing'
 import './styles/app.css'
 
@@ -30,6 +31,7 @@ function App() {
   const [autoTab, setAutoTab] = useState(null)
   const [billingPlan, setBillingPlan] = useState(null)
   const [syncError, setSyncError] = useState(false)
+  const [automationStatuses, setAutomationStatuses] = useState({})
 
   // Ref to block auto-login during registration verification
   const pendingVerifyRef = useRef(false)
@@ -298,6 +300,17 @@ function App() {
     return cleanup
   }, [loadProfiles])
 
+  useEffect(() => {
+    window.electronAPI.getAutomationStatuses().then(setAutomationStatuses).catch(() => {})
+    const cleanup = window.electronAPI.onAutomationProgress((data) => {
+      setAutomationStatuses(prev => ({ ...prev, [data.profileId]: data }))
+      if (data.status === 'running' || data.status === 'stopped' || data.status === 'completed' || data.status === 'error') {
+        loadProfiles()
+      }
+    })
+    return cleanup
+  }, [loadProfiles])
+
   // Plan check helper
   const isPlanActive = () => billingPlan && billingPlan.isActive
   const getRemainingProfiles = () => {
@@ -369,13 +382,22 @@ function App() {
   const handleLaunch = async (id) => {
     if (!isPlanActive()) return
     try {
-      await window.electronAPI.launchProfile(id)
-    } catch (e) { console.error('Launch failed:', e) }
+      const result = await window.electronAPI.launchProfile(id)
+      if (result && result.success === false) {
+        throw new Error(result.error || 'Profile could not be launched')
+      }
+    } catch (e) {
+      console.error('Launch failed:', e)
+      window.alert(e.message || 'Launch failed')
+    }
     await loadProfiles()
   }
 
   const handleStop = async (id) => {
     try {
+      if (automationStatuses[id]?.status === 'running') {
+        await window.electronAPI.stopAutomationScript(id)
+      }
       await window.electronAPI.stopProfile(id)
     } catch (e) { console.error('Stop failed:', e) }
     await loadProfiles()
@@ -490,8 +512,10 @@ function App() {
               profiles={filteredProfiles}
               allProfiles={visibleProfiles}
               folders={visibleFolders}
+              proxies={proxies}
               activeFolder={activeFolder}
               billingPlan={billingPlan}
+              automationStatuses={automationStatuses}
               onFolderSelect={setActiveFolder}
               onEdit={handleEdit}
               onDelete={handleDelete}
@@ -548,10 +572,14 @@ function App() {
           {currentView === 'automation' && (
             <AutomationPage
               profiles={profiles}
+              automationStatuses={automationStatuses}
               initialTab={autoTab}
               onCreateScript={() => { setEditingScriptId(null); setCurrentView('scriptBuilder') }}
               onEditScript={(id) => { setEditingScriptId(id); setCurrentView('scriptBuilder') }}
             />
+          )}
+          {currentView === 'phoneFarm' && (
+            <PhoneFarmPage onStopProfile={handleStop} />
           )}
           {currentView === 'billing' && (
             <BillingPage user={user} onPlanUpdated={loadBillingPlan} />

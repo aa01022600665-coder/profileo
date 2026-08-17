@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Auto Click Recorder</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="panel">
+      <header class="topbar">
+        <div class="brand">
+          <img class="logo" src="../icons/icon-48.png" alt="">
+          <div>
+            <h1>Auto Click Recorder</h1>
+            <p id="statusText">Ready</p>
+          </div>
+        </div>
+        <span id="eventCount" class="counter">0</span>
+      </header>
+
+      <section class="controls" aria-label="Recording controls">
+        <button id="recordButton" class="primary" type="button">Record</button>
+        <button id="stopButton" type="button" disabled>Stop</button>
+        <button id="playButton" type="button" disabled>Play</button>
+        <button id="stopPlayButton" type="button" disabled>Cancel</button>
+      </section>
+
+      <section class="settings" aria-label="Playback settings">
+        <label class="check">
+          <input id="movesToggle" type="checkbox">
+          <span>Mouse moves</span>
+        </label>
+
+        <label class="selectLabel">
+          <span>Speed</span>
+          <select id="speedSelect">
+            <option value="1">1x</option>
+            <option value="2">2x</option>
+            <option value="4">4x</option>
+          </select>
+        </label>
+      </section>
+
+      <section class="liveText" aria-label="TXT line playback">
+        <label for="liveTextInput">TXT lines</label>
+        <textarea id="liveTextInput" rows="3" placeholder="One line per Enter"></textarea>
+        <label class="check">
+          <input id="enterToggle" type="checkbox" checked>
+          <span>Enter after text</span>
+        </label>
+        <label class="delayLabel">
+          <span>Line delay</span>
+          <input id="delayInput" type="number" min="0" step="1" value="5">
+        </label>
+      </section>
+
+      <section class="fileActions" aria-label="Recording file actions">
+        <button id="exportButton" type="button" disabled>Export TXT</button>
+        <button id="importButton" type="button">Import TXT</button>
+        <button id="clearButton" type="button" disabled>Clear</button>
+        <input id="importFile" type="file" accept=".txt,.json,application/json,text/plain" hidden>
+      </section>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

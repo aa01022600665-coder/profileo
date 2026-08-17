@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { OS_OPTIONS, normalizeOs } from '../config/platforms'
+import { BrowserOptionIcon, OsOptionIcon } from './OptionIcons'
 
 const TIMEZONES = [
   'Auto (based on IP)',
@@ -36,10 +37,13 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
     // Proxy
     proxyType: profile?.proxyType || 'Without Proxy',
     proxy: profile?.proxy || '',
+    proxyNetworkType: profile?.proxyNetworkType || '',
+    proxyCountryCode: profile?.proxyCountryCode || '',
+    proxyCountry: profile?.proxyCountry || '',
     // Timezone
     timezone: profile?.timezone || 'Auto (based on IP)',
     // WebRTC
-    webrtc: profile?.webrtc || 'Altered',
+    webrtc: profile?.webrtc || 'Disabled',
     webrtcCustomIp: '',
     // Geolocation
     geolocation: profile?.geolocation || 'Prompt',
@@ -49,9 +53,9 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
     // Advanced - Security
     browserDataSync: profile?.browserDataSync !== false,
     // Advanced - Hardware
-    fakeCanvas: profile?.fakeCanvas || false,
+    fakeCanvas: profile?.fakeCanvas !== false,
     fakeAudio: profile?.fakeAudio !== false,
-    fakeWebGLImage: profile?.fakeWebGLImage || false,
+    fakeWebGLImage: profile?.fakeWebGLImage !== false,
     fakeWebGLMetadata: profile?.fakeWebGLMetadata !== false,
     fakeClientRects: profile?.fakeClientRects || false,
     // Advanced - Others
@@ -59,14 +63,15 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
     restoreSession: profile?.restoreSession !== false,
     dontShowImages: profile?.dontShowImages || false,
     muteAudio: profile?.muteAudio || false,
+    vpsCompatibilityMode: profile?.vpsCompatibilityMode || false,
     // Advanced - Navigator
     language: profile?.language || 'en-US',
     screenResolution: profile ? `${profile.screenWidth}x${profile.screenHeight}` : '1920x1080',
     // Advanced - Media Devices
     maskMediaDevices: profile?.maskMediaDevices !== false,
-    mediaVideoInputs: profile?.mediaVideoInputs || 1,
-    mediaAudioInputs: profile?.mediaAudioInputs || 1,
-    mediaAudioOutputs: profile?.mediaAudioOutputs || 1,
+    mediaVideoInputs: profile?.mediaVideoInputs ?? 0,
+    mediaAudioInputs: profile?.mediaAudioInputs ?? 0,
+    mediaAudioOutputs: profile?.mediaAudioOutputs ?? 0,
     // Advanced - Notes, Tags, Start URL
     notes: profile?.notes || '',
     tags: profile?.tags || '',
@@ -78,6 +83,18 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
   })
 
   const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
+
+  const handleProxyManagerSelect = (address) => {
+    const selectedProxy = proxies?.find(p => p.address === address)
+    setForm(prev => ({
+      ...prev,
+      proxy: address,
+      proxyType: selectedProxy?.type || prev.proxyType,
+      proxyNetworkType: selectedProxy?.networkType || '',
+      proxyCountryCode: selectedProxy?.countryCode || '',
+      proxyCountry: selectedProxy?.countryName || ''
+    }))
+  }
 
   const handleSave = () => {
     const name = form.name.trim() || 'Untitled Profile'
@@ -95,6 +112,9 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
       language: form.language,
       proxyType: form.proxyType,
       proxy: form.proxyType !== 'Without Proxy' ? form.proxy : '',
+      proxyNetworkType: form.proxyType !== 'Without Proxy' ? form.proxyNetworkType : '',
+      proxyCountryCode: form.proxyType !== 'Without Proxy' ? form.proxyCountryCode : '',
+      proxyCountry: form.proxyType !== 'Without Proxy' ? form.proxyCountry : '',
       notes: form.notes,
       tags: form.tags,
       startUrl,
@@ -117,6 +137,7 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
       restoreSession: form.restoreSession,
       dontShowImages: form.dontShowImages,
       muteAudio: form.muteAudio,
+      vpsCompatibilityMode: form.vpsCompatibilityMode,
       cookies: form.cookies,
       bookmarks: form.bookmarks,
     })
@@ -178,10 +199,10 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
               <section className="np-section">
                 <h3>OPERATING SYSTEM (OS)</h3>
                 <p className="np-hint">It is recommended to use the same operating system of the machine for the best performance.</p>
-                <div className="chip-group">
+                <div className="chip-group icon-chip-group">
                   {OS_OPTIONS.map(os => (
-                    <button key={os} className={`chip ${form.os === os ? 'chip-active' : ''}`} onClick={() => set('os', os)}>
-                      {os} {form.os === os && <span className="chip-check">&#x2713;</span>}
+                    <button key={os} className={`chip chip-icon-only ${form.os === os ? 'chip-active' : ''}`} onClick={() => set('os', os)} title={os} aria-label={os}>
+                      <OsOptionIcon os={os} />
                     </button>
                   ))}
                 </div>
@@ -189,10 +210,10 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
 
               <section className="np-section">
                 <h3>BROWSER</h3>
-                <div className="chip-group">
+                <div className="chip-group icon-chip-group">
                   {BROWSER_OPTIONS.map(br => (
-                    <button key={br} className={`chip ${form.browser === br ? 'chip-active chip-browser' : ''}`} onClick={() => set('browser', br)}>
-                      {br} {form.browser === br && <span className="chip-dot">&#x25CF;</span>}
+                    <button key={br} className={`chip chip-icon-only ${form.browser === br ? 'chip-active chip-browser' : ''}`} onClick={() => set('browser', br)} title={br} aria-label={br}>
+                      <BrowserOptionIcon browser={br} />
                     </button>
                   ))}
                 </div>
@@ -241,17 +262,17 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
                     className="np-input"
                     placeholder="host:port:username:password"
                     value={form.proxy}
-                    onChange={e => set('proxy', e.target.value)}
+                    onChange={e => setForm(prev => ({ ...prev, proxy: e.target.value, proxyNetworkType: '', proxyCountryCode: '', proxyCountry: '' }))}
                   />
                   <p className="np-hint-sm">Format: host:port or host:port:username:password</p>
 
                   {proxies && proxies.length > 0 && (
                     <div style={{ marginTop: 16 }}>
                       <h3>OR SELECT FROM PROXY MANAGER</h3>
-                      <select className="np-select" value={form.proxy} onChange={e => set('proxy', e.target.value)}>
+                      <select className="np-select" value={form.proxy} onChange={e => handleProxyManagerSelect(e.target.value)}>
                         <option value="">Select a proxy...</option>
                         {proxies.map(p => (
-                          <option key={p.id} value={p.address}>[{p.type}] {p.address}</option>
+                          <option key={p.id} value={p.address}>[{p.type}] {p.networkType ? `${p.networkType} - ` : ''}{p.countryCode ? `${p.countryCode} - ` : ''}{p.address}</option>
                         ))}
                       </select>
                     </div>
@@ -267,6 +288,27 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
           {/* ─── EXTENSIONS ─── */}
           {activeTab === 'Extensions' && (
             <div className="tab-extensions">
+              <section className="np-section">
+                <h3>DEFAULT EXTENSIONS</h3>
+                <div className="default-extension-list">
+                  <div className="default-extension-card">
+                    <div className="default-extension-icon">N</div>
+                    <div className="default-extension-main">
+                      <strong>Nexus Wallet</strong>
+                      <span>Installed automatically for every active plan profile.</span>
+                    </div>
+                    <span className="default-extension-badge">Auto</span>
+                  </div>
+                  <div className="default-extension-card">
+                    <div className="default-extension-icon auto-click">A</div>
+                    <div className="default-extension-main">
+                      <strong>Auto Click Recorder</strong>
+                      <span>Bundled with Profileo and loaded into every profile browser.</span>
+                    </div>
+                    <span className="default-extension-badge">Auto</span>
+                  </div>
+                </div>
+              </section>
               <section className="np-section">
                 <h3>EXTENSIONS</h3>
                 <p className="np-hint">Upload browser extensions in CRX or ZIP format.</p>
@@ -305,8 +347,8 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
                 <h3>WEBRTC MODE</h3>
                 <div className="chip-group">
                   {[
-                    { id: 'Altered', desc: 'Adjusts WebRTC IP to match the proxy IP' },
-                    { id: 'Disabled', desc: 'Recommended for rotating proxies' },
+                    { id: 'Disabled', desc: 'Recommended: hides WebRTC IP leaks' },
+                    { id: 'Altered', desc: 'Blocks non-proxied WebRTC traffic' },
                     { id: 'Real', desc: 'Uses your actual current IP' }
                   ].map(opt => (
                     <button key={opt.id} className={`chip chip-lg ${form.webrtc === opt.id ? 'chip-active' : ''}`} onClick={() => set('webrtc', opt.id)}>
@@ -412,6 +454,7 @@ function NewProfile({ profile, folders, proxies, billingPlan, profileCount, onSa
                 {/* Others */}
                 <div className="adv-card">
                   <h4>OTHERS</h4>
+                  <label className="toggle-row"><span className={`toggle ${form.vpsCompatibilityMode ? 'on' : ''}`} onClick={() => set('vpsCompatibilityMode', !form.vpsCompatibilityMode)} /><span>VPS Compatibility Mode</span></label>
                   <label className="toggle-row"><span className={`toggle ${form.clearCache ? 'on' : ''}`} onClick={() => set('clearCache', !form.clearCache)} /><span>Clear Cache after browser shutdown</span></label>
                   <label className="toggle-row"><span className={`toggle ${form.restoreSession ? 'on' : ''}`} onClick={() => set('restoreSession', !form.restoreSession)} /><span>Restore last Browser session</span></label>
                   <label className="toggle-row"><span className={`toggle ${form.dontShowImages ? 'on' : ''}`} onClick={() => set('dontShowImages', !form.dontShowImages)} /><span>Don't allow sites to show images</span></label>

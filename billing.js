@@ -2,7 +2,7 @@
   'use strict'
 
   const API_BASE = 'https://profileo-api.aa01022600665.workers.dev'
-  const DOWNLOAD_URL = 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.6.exe'
+  const DOWNLOAD_URL = 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.7.exe'
 
   const PLANS = [
     { id: 'mini', name: 'Mini', price: 5, profiles: 5 },

@@ -31,6 +31,52 @@ const COMPARE_FEATURES = [
   { name: 'Custom Integrations', values: { mini: false, starter: false, base: false, team: false, business: true }, type: 'bool' },
 ]
 
+function PlanIcon({ planId }) {
+  const common = { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  const icons = {
+    mini: (
+      <svg {...common}>
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M6 21v-1a6 6 0 0 1 12 0v1"/>
+      </svg>
+    ),
+    starter: (
+      <svg {...common}>
+        <path d="M12 3l4 7-4 11-4-11 4-7z"/>
+        <path d="M8 10H4l3 5"/>
+        <path d="M16 10h4l-3 5"/>
+      </svg>
+    ),
+    base: (
+      <svg {...common}>
+        <path d="M12 3l2.8 5.8 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.3l1.1-6.2L3 9.7l6.2-.9L12 3z"/>
+      </svg>
+    ),
+    team: (
+      <svg {...common}>
+        <circle cx="8" cy="8" r="3"/>
+        <circle cx="17" cy="9" r="2.5"/>
+        <path d="M3 21v-1a5 5 0 0 1 10 0v1"/>
+        <path d="M14 21v-.7a4 4 0 0 1 6-3.5"/>
+      </svg>
+    ),
+    business: (
+      <svg {...common}>
+        <path d="M4 21V7l8-4 8 4v14"/>
+        <path d="M9 21v-6h6v6"/>
+        <path d="M8 9h.01M12 9h.01M16 9h.01M8 12h.01M12 12h.01M16 12h.01"/>
+      </svg>
+    )
+  }
+
+  return (
+    <span className={`plan-icon-premium plan-icon-${planId}`}>
+      <span className="plan-icon-orbit" />
+      <span className="plan-icon-core">{icons[planId] || icons.mini}</span>
+    </span>
+  )
+}
+
 function BillingPage({ user, onPlanUpdated }) {
   const [billingTab, setBillingTab] = useState('plans')
   const [selectedPeriod, setSelectedPeriod] = useState('monthly')
@@ -311,9 +357,10 @@ function BillingPage({ user, onPlanUpdated }) {
                   const isCurrent = isCurrentPlan(plan.id)
 
                   return (
-                    <div key={plan.id} className={`plan-card ${plan.recommended ? 'plan-recommended' : ''} ${isCurrent ? 'plan-current' : ''}`}>
+                    <div key={plan.id} className={`plan-card plan-${plan.id} ${plan.recommended ? 'plan-recommended' : ''} ${isCurrent ? 'plan-current' : ''}`}>
+                      <span className="plan-card-glow" />
                       {plan.recommended && <div className="plan-badge">Recommended</div>}
-                      <div className="plan-icon">{plan.icon}</div>
+                      <div className="plan-icon"><PlanIcon planId={plan.id} /></div>
                       <h3 className="plan-name">{plan.name}</h3>
                       <div className="plan-price">
                         <span className="plan-price-amount">${monthlyPrice}</span>

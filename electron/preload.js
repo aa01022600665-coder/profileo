@@ -12,6 +12,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   duplicateProfile: (id, count, options) => ipcRenderer.invoke('profiles:duplicate', id, count, options),
   launchProfile: (id) => ipcRenderer.invoke('profiles:launch', id),
   stopProfile: (id) => ipcRenderer.invoke('profiles:stop', id),
+  listPhoneFarmDevices: () => ipcRenderer.invoke('phoneFarm:list'),
+  getPhoneFarmScreenshot: (profileId) => ipcRenderer.invoke('phoneFarm:screenshot', profileId),
+  tapPhoneFarmDevice: (profileId, point) => ipcRenderer.invoke('phoneFarm:tap', profileId, point),
+  sendPhoneFarmKey: (profileId, key) => ipcRenderer.invoke('phoneFarm:key', profileId, key),
+  launchPhoneFarmApp: (profileId, appName) => ipcRenderer.invoke('phoneFarm:launchApp', profileId, appName),
   onProfileStopped: (callback) => {
     const handler = (_, profileId) => callback(profileId)
     ipcRenderer.on('profile:stopped', handler)
@@ -35,6 +40,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runAutomationScript: (profileId, scriptId, params) => ipcRenderer.invoke('automation:runScript', profileId, scriptId, params),
   stopAutomationScript: (profileId) => ipcRenderer.invoke('automation:stopScript', profileId),
   getAutomationStatuses: () => ipcRenderer.invoke('automation:getStatuses'),
+  selectAutomationTextFile: () => ipcRenderer.invoke('automation:selectTextFile'),
+  getAutomationProfileState: (scriptId, profileId) => ipcRenderer.invoke('automation:getProfileState', scriptId, profileId),
+  saveAutomationProfileState: (scriptId, profileId, data) => ipcRenderer.invoke('automation:saveProfileState', scriptId, profileId, data),
   onAutomationProgress: (callback) => {
     const handler = (_, data) => callback(data)
     ipcRenderer.on('automation:progress', handler)
@@ -62,6 +70,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // Shell
   openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+
+  // Updates
+  getUpdateState: () => ipcRenderer.invoke('updates:getState'),
+  checkForUpdates: () => ipcRenderer.invoke('updates:check'),
+  downloadUpdate: () => ipcRenderer.invoke('updates:download'),
+  installUpdate: () => ipcRenderer.invoke('updates:install'),
+  onUpdateStatus: (callback) => {
+    const handler = (_, data) => callback(data)
+    ipcRenderer.on('updates:status', handler)
+    return () => ipcRenderer.removeListener('updates:status', handler)
+  },
 
   // Window
   minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

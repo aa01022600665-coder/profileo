@@ -62,7 +62,7 @@ document.querySelectorAll('a[href*="Profileo.Setup"]').forEach(link => {
       gtag('event', 'download', {
         event_category: 'App',
         event_label: document.title,
-        file_name: 'Profileo.Setup.1.3.6.exe',
+        file_name: 'Profileo.Setup.1.3.7.exe',
         page_location: window.location.href
       })
     }
