@@ -2,7 +2,7 @@
   'use strict'
 
   const API_BASE = 'https://profileo-api.aa01022600665.workers.dev'
-  const DOWNLOAD_URL = 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.7.exe'
+  let downloadUrl = window.PROFILEO_DOWNLOAD_URL || 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.7.exe'
 
   const PLANS = [
     { id: 'mini', name: 'Mini', price: 5, profiles: 5 },
@@ -191,6 +191,7 @@
     const plan = getPlan(planData.planId)
     const status = $('.payment-status-area') || $('#paymentContent')
     if (!status) return
+    downloadUrl = window.PROFILEO_DOWNLOAD_URL || downloadUrl
     status.innerHTML = `
       <div class="payment-success">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
@@ -200,7 +201,7 @@
         <h3>Payment Confirmed!</h3>
         <p>Your <strong>${plan?.name || planData.planId}</strong> plan is active for <strong>${currentUser.email}</strong>.</p>
         <p class="payment-hint">Download Profileo and sign in with this same email to activate the package.</p>
-        <a href="${DOWNLOAD_URL}" class="btn btn-primary btn-block">Download Profileo</a>
+        <a href="${downloadUrl}" class="btn btn-primary btn-block">Download Profileo</a>
       </div>
     `
   }

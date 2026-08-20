@@ -33,6 +33,12 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 // Pricing period toggle
 const discounts = { monthly: 0, '3months': 0.20, '6months': 0.30, '12months': 0.50 }
 const months = { monthly: 1, '3months': 3, '6months': 6, '12months': 12 }
+const DOWNLOAD_FALLBACK_URL = 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.7.exe'
+const LATEST_RELEASE_API_URL = 'https://api.github.com/repos/aa01022600665-coder/profileo/releases/latest'
+let downloadFileName = 'Profileo.Setup.1.3.7.exe'
+
+window.PROFILEO_DOWNLOAD_URL = DOWNLOAD_FALLBACK_URL
+window.PROFILEO_DOWNLOAD_FILE_NAME = downloadFileName
 
 document.querySelectorAll('.period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -55,6 +61,32 @@ document.querySelectorAll('.period-btn').forEach(btn => {
   })
 })
 
+// Keep download buttons pointed at the real latest GitHub release asset.
+async function refreshDownloadLinks() {
+  try {
+    const response = await fetch(LATEST_RELEASE_API_URL, {
+      headers: { Accept: 'application/vnd.github+json' }
+    })
+    if (!response.ok) return
+    const release = await response.json()
+    const asset = Array.isArray(release.assets)
+      ? release.assets.find(item => /^Profileo\.Setup\.\d+\.\d+\.\d+\.exe$/.test(item.name))
+      : null
+    if (!asset || !asset.browser_download_url) return
+
+    downloadFileName = asset.name
+    window.PROFILEO_DOWNLOAD_URL = asset.browser_download_url
+    window.PROFILEO_DOWNLOAD_FILE_NAME = asset.name
+    document.querySelectorAll('a[href*="Profileo.Setup"]').forEach(link => {
+      link.href = asset.browser_download_url
+    })
+  } catch (error) {
+    console.warn('Could not refresh Profileo download link', error)
+  }
+}
+
+refreshDownloadLinks()
+
 // GA Download Event Tracking
 document.querySelectorAll('a[href*="Profileo.Setup"]').forEach(link => {
   link.addEventListener('click', function() {
@@ -62,7 +94,7 @@ document.querySelectorAll('a[href*="Profileo.Setup"]').forEach(link => {
       gtag('event', 'download', {
         event_category: 'App',
         event_label: document.title,
-        file_name: 'Profileo.Setup.1.3.7.exe',
+        file_name: window.PROFILEO_DOWNLOAD_FILE_NAME || downloadFileName,
         page_location: window.location.href
       })
     }
