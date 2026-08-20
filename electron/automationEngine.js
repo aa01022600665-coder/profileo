@@ -362,6 +362,11 @@ export class AutomationEngine {
         break
       }
 
+      case 'kickSearchWatchComment': {
+        await this._runKickSearchWatchComment(page, step, profileId, cancelRef)
+        break
+      }
+
       case 'scroll': {
         const amount = typeof step.amount === 'string' ? parseInt(step.amount) || 3 : (step.amount || 3)
         for (let i = 0; i < amount; i++) {
@@ -666,6 +671,311 @@ export class AutomationEngine {
     }
   }
 
+  _cleanAutomationValue(value) {
+    const text = String(value || '').trim()
+    return /^\{\{.+\}\}$/.test(text) ? '' : text
+  }
+
+  _resolveKickBrowserUrl(targetUrl, keyword) {
+    const target = this._cleanAutomationValue(targetUrl)
+    const search = this._cleanAutomationValue(keyword)
+    const raw = target || search
+    if (!raw) throw new Error('Kick target URL or search keyword is required.')
+
+    if (/^https?:\/\//i.test(raw)) return raw
+    const withoutAt = raw.replace(/^@+/, '').trim()
+    if (/^kick\.com\//i.test(withoutAt)) return `https://${withoutAt}`
+
+    const slug = withoutAt
+      .replace(/^https?:\/\/(www\.)?kick\.com\//i, '')
+      .split(/[/?#]/)[0]
+      .replace(/\s+/g, '')
+      .toLowerCase()
+
+    if (slug) return `https://kick.com/${encodeURIComponent(slug)}`
+    throw new Error('Kick target URL or search keyword is required.')
+  }
+
+  async _runKickSearchWatchComment(page, step, profileId, cancelRef) {
+    const scriptId = 'kick-watch-comment'
+    const { keyword } = this._resolveProfileKeyword(profileId, scriptId, step)
+    const targetUrl = this._resolveKickBrowserUrl(step.targetUrl, keyword)
+
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 45000 })
+    await this._settlePage(page, cancelRef, 3500)
+    await this._dismissKickPopups(page)
+    await this._openKickVisibleStream(page)
+    await this._startKickPlayback(page)
+    await this._setKickLowQuality(page)
+
+    const state = this._readAutomationProfileState(profileId, scriptId)
+    const commentFile = this._cleanAutomationValue(step.commentFile) || state.commentFile || ''
+    const lines = this._readLinesFromFile(commentFile)
+    if (!lines.length) {
+      this._writeAutomationProfileState(profileId, scriptId, {
+        ...state,
+        commentFile,
+        updatedAt: new Date().toISOString()
+      })
+      await this._keepKickBrowserOpen(page, cancelRef)
+      return
+    }
+
+    const runtimeState = {
+      commentIndex: Number(state.commentIndex) || 0,
+      mixQueue: Array.isArray(state.mixQueue) ? state.mixQueue : []
+    }
+
+    while (!cancelRef.get()) {
+      await this._dismissKickPopups(page)
+      await this._startKickPlayback(page)
+
+      const comment = this._pickCommentLine(lines, step.commentOrder, runtimeState)
+      if (comment) {
+        const sent = await this._sendKickBrowserComment(page, comment).catch(() => false)
+        this._writeAutomationProfileState(profileId, scriptId, {
+          ...state,
+          commentFile,
+          commentIndex: runtimeState.commentIndex,
+          mixQueue: runtimeState.mixQueue,
+          lastComment: comment,
+          lastCommentAt: sent ? new Date().toISOString() : state.lastCommentAt,
+          lastCommentStatus: sent ? 'sent' : 'not-sent',
+          updatedAt: new Date().toISOString()
+        })
+      }
+
+      const waitUntil = Date.now() + this._commentDelayMs(step)
+      while (!cancelRef.get() && Date.now() < waitUntil) {
+        await this._startKickPlayback(page)
+        await new Promise(r => setTimeout(r, Math.min(10000, waitUntil - Date.now())))
+      }
+    }
+  }
+
+  async _dismissKickPopups(page) {
+    await page.evaluate(() => {
+      const texts = [
+        'accept all',
+        'accept',
+        'i agree',
+        'agree',
+        'got it',
+        'not now',
+        'maybe later',
+        'start watching',
+        'i am 18+',
+        'yes, i am 18',
+        'close'
+      ]
+      const clickables = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+      for (const el of clickables) {
+        const label = `${el.textContent || ''} ${el.getAttribute('aria-label') || ''} ${el.title || ''}`.trim().toLowerCase()
+        if (!label) continue
+        if (texts.some(text => label === text || (label.includes(text) && label.length <= text.length + 30))) {
+          el.click()
+        }
+      }
+    }).catch(() => {})
+    await this._settlePage(page, { get: () => false }, 800)
+  }
+
+  async _openKickVisibleStream(page) {
+    const hasVideo = await page.evaluate(() => Boolean(document.querySelector('video'))).catch(() => false)
+    if (hasVideo) return
+
+    const streamUrl = await page.evaluate(() => {
+      const ignored = new Set([
+        'about',
+        'browse',
+        'categories',
+        'category',
+        'community-guidelines',
+        'following',
+        'jobs',
+        'privacy',
+        'search',
+        'settings',
+        'subscriptions',
+        'terms'
+      ])
+
+      const anchors = Array.from(document.querySelectorAll('a[href]'))
+        .map(anchor => {
+          const url = new URL(anchor.getAttribute('href'), location.href)
+          const parts = url.pathname.split('/').filter(Boolean)
+          const text = (anchor.textContent || '').toLowerCase()
+          const rect = anchor.getBoundingClientRect()
+          const visible = rect.width > 0 && rect.height > 0
+          const hasMedia = Boolean(anchor.querySelector('img, video, picture'))
+          const score = (text.includes('live') ? 4 : 0) + (text.includes('view') ? 2 : 0) + (hasMedia ? 3 : 0)
+          return { href: url.href, parts, visible, score, top: rect.top }
+        })
+        .filter(item => {
+          if (!item.visible || item.parts.length !== 1) return false
+          const slug = item.parts[0].toLowerCase()
+          if (ignored.has(slug)) return false
+          return /^[a-z0-9][a-z0-9_-]{1,40}$/i.test(slug)
+        })
+        .sort((a, b) => b.score - a.score || a.top - b.top)
+
+      return anchors[0]?.href || ''
+    }).catch(() => '')
+
+    if (streamUrl) {
+      await page.goto(streamUrl, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {})
+      await this._settlePage(page, { get: () => false }, 3000)
+    }
+  }
+
+  async _startKickPlayback(page) {
+    await page.evaluate(() => {
+      const videos = Array.from(document.querySelectorAll('video'))
+      for (const video of videos) {
+        try {
+          video.muted = true
+          const playResult = video.play()
+          if (playResult && typeof playResult.catch === 'function') playResult.catch(() => {})
+        } catch (_) {}
+      }
+
+      const buttons = Array.from(document.querySelectorAll('button, [role="button"]'))
+      for (const button of buttons) {
+        const label = `${button.getAttribute('aria-label') || ''} ${button.title || ''} ${button.textContent || ''}`.toLowerCase()
+        if (label.includes('play') || label.includes('start watching')) {
+          button.click()
+          break
+        }
+      }
+    }).catch(() => {})
+  }
+
+  async _setKickLowQuality(page) {
+    await page.evaluate(() => {
+      const video = document.querySelector('video')
+      if (!video) return
+      const videoRect = video.getBoundingClientRect()
+      const buttons = Array.from(document.querySelectorAll('button, [role="button"]'))
+        .filter(button => {
+          const rect = button.getBoundingClientRect()
+          return rect.width > 0 &&
+            rect.height > 0 &&
+            rect.left >= videoRect.left &&
+            rect.right <= videoRect.right &&
+            rect.top >= videoRect.top &&
+            rect.bottom <= videoRect.bottom
+        })
+        .sort((a, b) => b.getBoundingClientRect().right - a.getBoundingClientRect().right)
+      const settings = buttons.find(button => {
+        const label = `${button.getAttribute('aria-label') || ''} ${button.title || ''}`.toLowerCase()
+        return label.includes('quality') || label.includes('settings')
+      }) || buttons[0]
+      if (settings) settings.click()
+    }).catch(() => {})
+    await this._settlePage(page, { get: () => false }, 500)
+    await page.evaluate(() => {
+      const items = Array.from(document.querySelectorAll('button, [role="menuitem"], [role="option"], li, div, span'))
+      const lowQuality = items.find(item => {
+        const text = (item.textContent || '').trim().toLowerCase()
+        return text === '160p' || text === '240p' || text.includes('160p') || text.includes('240p')
+      })
+      if (lowQuality) lowQuality.click()
+    }).catch(() => {})
+  }
+
+  async _openKickChatPanel(page) {
+    await page.evaluate(() => {
+      const clickables = Array.from(document.querySelectorAll('button, a, [role="button"]'))
+      const chatButton = clickables.find(el => {
+        const label = `${el.textContent || ''} ${el.getAttribute('aria-label') || ''} ${el.title || ''}`.trim().toLowerCase()
+        return label === 'chat' || label.includes('open chat') || label.includes('show chat')
+      })
+      if (chatButton) chatButton.click()
+    }).catch(() => {})
+    await this._settlePage(page, { get: () => false }, 500)
+  }
+
+  async _getKickChatInput(page) {
+    const selectors = [
+      '[contenteditable="true"][role="textbox"]',
+      '[contenteditable="true"]',
+      'textarea[placeholder*="message" i]',
+      'textarea[placeholder*="chat" i]',
+      'input[placeholder*="message" i]',
+      'input[placeholder*="chat" i]',
+      'textarea',
+      'input[type="text"]'
+    ]
+
+    for (const selector of selectors) {
+      const handles = await page.$$(selector).catch(() => [])
+      for (const handle of handles) {
+        const usable = await page.evaluate(el => {
+          const rect = el.getBoundingClientRect()
+          const style = window.getComputedStyle(el)
+          const text = `${el.getAttribute('placeholder') || ''} ${el.getAttribute('aria-label') || ''}`.toLowerCase()
+          return rect.width > 0 &&
+            rect.height > 0 &&
+            style.visibility !== 'hidden' &&
+            style.display !== 'none' &&
+            !el.disabled &&
+            !el.readOnly &&
+            (text.includes('message') || text.includes('chat') || el.isContentEditable)
+        }, handle).catch(() => false)
+        if (usable) return handle
+        await handle.dispose().catch(() => {})
+      }
+    }
+    return null
+  }
+
+  async _sendKickBrowserComment(page, text) {
+    const message = String(text || '').trim()
+    if (!message) return false
+
+    await this._openKickChatPanel(page)
+    const input = await this._getKickChatInput(page)
+    if (!input) return false
+
+    try {
+      await input.click({ clickCount: 3 }).catch(async () => {
+        await page.evaluate(el => {
+          el.scrollIntoView({ block: 'center' })
+          el.focus()
+        }, input)
+      })
+      await page.keyboard.down('Control').catch(() => {})
+      await page.keyboard.press('A').catch(() => {})
+      await page.keyboard.up('Control').catch(() => {})
+      await page.keyboard.press('Backspace').catch(() => {})
+      await page.keyboard.type(message, { delay: 35 })
+      await page.keyboard.press('Enter')
+      await this._settlePage(page, { get: () => false }, 700)
+
+      await page.evaluate(() => {
+        const buttons = Array.from(document.querySelectorAll('button, [role="button"]'))
+          .filter(button => {
+            const rect = button.getBoundingClientRect()
+            const label = `${button.textContent || ''} ${button.getAttribute('aria-label') || ''} ${button.title || ''}`.toLowerCase()
+            return rect.width > 0 && rect.height > 0 && !button.disabled && (label.includes('send') || label.includes('chat'))
+          })
+          .sort((a, b) => b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom)
+        if (buttons[0]) buttons[0].click()
+      }).catch(() => {})
+      return true
+    } finally {
+      await input.dispose().catch(() => {})
+    }
+  }
+
+  async _keepKickBrowserOpen(page, cancelRef) {
+    while (!cancelRef.get()) {
+      await this._dismissKickPopups(page)
+      await this._startKickPlayback(page)
+      await new Promise(r => setTimeout(r, 10000))
+    }
+  }
+
   async _executeAndroidYouTubeSearchWatch(profile, params, cancelRef, profileId, stepCounter, totalSteps) {
     const keyword = String(params?.keyword || '').trim()
     if (!keyword) throw new Error('Search keyword is required.')
@@ -775,13 +1085,14 @@ export class AutomationEngine {
 
   _resolveProfileKeyword(profileId, scriptId, params) {
     const state = this._readAutomationProfileState(profileId, scriptId)
-    const keywordFile = String(params?.keywordFile || '').trim() || state.keywordFile || ''
-    const keyword = String(params?.keyword || '').trim() || this._readKeywordFromFile(keywordFile) || state.keyword || ''
+    const keywordFile = this._cleanAutomationValue(params?.keywordFile) || state.keywordFile || ''
+    const keyword = this._cleanAutomationValue(params?.keyword) || this._readKeywordFromFile(keywordFile) || state.keyword || ''
+    const commentFile = this._cleanAutomationValue(params?.commentFile) || state.commentFile || ''
     this._writeAutomationProfileState(profileId, scriptId, {
       ...state,
       keyword,
       keywordFile,
-      commentFile: String(params?.commentFile || '').trim() || state.commentFile || '',
+      commentFile,
       updatedAt: new Date().toISOString()
     })
     return { keyword, keywordFile }

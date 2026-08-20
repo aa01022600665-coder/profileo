@@ -231,9 +231,14 @@ export const AUTOMATION_SCRIPTS = [
     ],
     steps: [
       {
-        action: 'androidKickSearchWatch',
+        action: 'kickSearchWatchComment',
         keyword: '{{keyword}}',
-        keywordFile: '{{keywordFile}}'
+        keywordFile: '{{keywordFile}}',
+        commentFile: '{{commentFile}}',
+        commentOrder: '{{commentOrder}}',
+        commentDelayMin: '{{commentDelayMin}}',
+        commentDelayMax: '{{commentDelayMax}}',
+        targetUrl: '{{targetUrl}}'
       },
     ]
   },
