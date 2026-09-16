@@ -1,29 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L725727G6C"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L725727G6C');</script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog - Profileo</title>
-  <meta name="description" content="Stay updated with the latest tips, tutorials, and news about anti-detect browsers, multi-account management, and online privacy.">
-  <meta name="author" content="Profileo">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://getprofileo.com/blog">
-
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://getprofileo.com/blog">
-  <meta property="og:title" content="Blog - Profileo">
-  <meta property="og:description" content="Tips, tutorials, and news about anti-detect browsers and multi-account management.">
-  <meta property="og:image" content="https://getprofileo.com/assets/icon.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="assets/icon.png">
-  <script type="application/ld+json">{
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Create and Manage Browser Profiles | Profileo Guide</title><meta name="description" content="Create your first Profileo browser profile, review fingerprint and WebRTC controls, assign a proxy, and organize multiple profiles with names, tags and notes."><meta name="robots" content="index, follow"><link rel="canonical" href="https://getprofileo.com/guides/browser-profiles"><meta property="og:type" content="website"><meta property="og:title" content="Create and Manage Browser Profiles | Profileo Guide"><meta property="og:description" content="Create your first Profileo browser profile, review fingerprint and WebRTC controls, assign a proxy, and organize multiple profiles with names, tags and notes."><meta property="og:url" content="https://getprofileo.com/guides/browser-profiles"><meta property="og:image" content="https://getprofileo.com/assets/profileo-dashboard-hero-v2.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/assets/icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/seo.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-L725727G6C"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L725727G6C');</script><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Create and Manage Browser Profiles | Profileo Guide",
+  "description": "Create your first Profileo browser profile, review fingerprint and WebRTC controls, assign a proxy, and organize multiple profiles with names, tags and notes.",
+  "url": "https://getprofileo.com/guides/browser-profiles",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Profileo",
+    "url": "https://getprofileo.com/"
+  }
+}</script><script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
@@ -31,25 +19,25 @@
       "@type": "ListItem",
       "position": 1,
       "name": "Profileo",
-      "item": "https://getprofileo.com"
+      "item": "https://getprofileo.com/"
     },
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Blog",
-      "item": "https://getprofileo.com/blog"
+      "name": "Guides",
+      "item": "https://getprofileo.com/guides"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Browser profiles",
+      "item": "https://getprofileo.com/guides/browser-profiles"
     }
   ]
-}</script>
-  <link rel="stylesheet" href="/seo.css">
-</head>
-<body>
-
-  <!-- NAVBAR -->
-  <nav class="navbar" id="navbar">
+}</script></head><body><a class="seo-skip" href="#content">Skip to content</a><nav class="navbar" id="navbar">
     <div class="container nav-container">
       <a href="/" class="logo">
-        <img decoding="async" width="256" height="256" src="assets/icon.png" alt="Profileo" class="logo-icon">
+        <img decoding="async" width="256" height="256" src="/assets/icon.png" alt="Profileo" class="logo-icon">
         <span>Profileo</span>
       </a>
       <ul class="nav-links" id="navLinks">
@@ -85,151 +73,17 @@
         <span></span><span></span><span></span>
       </button>
     </div>
-  </nav>
-
-  <!-- BLOG HERO -->
-  <section class="blog-hero">
-    <div class="container">
-      <span class="badge">Blog</span>
-      <h1>Latest News &<br><span class="gradient-text">Insights</span></h1>
-      <p class="blog-hero-text">Stay updated with tips, tutorials, and news about anti-detect browsers, multi-account management, and online privacy.</p>
-    </div>
-  </section>
-
-  <!-- CATEGORY FILTERS -->
-  <section class="blog-filters">
-    <div class="container">
-      <div class="blog-filter-bar">
-        <button class="blog-filter-btn active" data-filter="all">All</button>
-        <button class="blog-filter-btn" data-filter="product">Product Updates</button>
-        <button class="blog-filter-btn" data-filter="tutorial">Tutorials</button>
-        <button class="blog-filter-btn" data-filter="antidetect">Anti-Detect</button>
-        <button class="blog-filter-btn" data-filter="automation">Automation</button>
-        <button class="blog-filter-btn" data-filter="tips">Tips & Tricks</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- BLOG GRID -->
-  <section class="blog-posts">
-    <div class="container">
-      <div class="blog-grid">
-
-        <article class="blog-card" data-category="product">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#6c5ce7,#a855f7)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Product Updates</span>
-            <h3 class="blog-card-title"><a href="/download#release">Profileo 1.3.8: Public Windows Release</a></h3>
-            <p class="blog-card-excerpt">Find the public Windows download, installation steps, and a clear explanation of release versions.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">5 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="tutorial">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#22c55e,#16a34a)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Tutorials</span>
-            <h3 class="blog-card-title"><a href="/guides/browser-profiles#create">Getting Started: How to Create Your First Browser Profile</a></h3>
-            <p class="blog-card-excerpt">A step-by-step guide for beginners on setting up Profileo, creating browser profiles with unique fingerprints, and configuring proxies.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">4 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="antidetect">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Anti-Detect</span>
-            <h3 class="blog-card-title"><a href="/blog/browser-fingerprinting">What Is Browser Fingerprinting and How to Protect Yourself</a></h3>
-            <p class="blog-card-excerpt">Learn how websites track you through browser fingerprints, what data they collect, and what browser-profile and fingerprint controls can change.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">6 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="automation">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Automation</span>
-            <h3 class="blog-card-title"><a href="/guides/automation">Run and Review Profileo Browser Automation</a></h3>
-            <p class="blog-card-excerpt">Learn to select a script, review its parameters, test one profile, and monitor or stop a run.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">5 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="tips">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Tips & Tricks</span>
-            <h3 class="blog-card-title"><a href="/multi-account-browser#ecommerce">5 Best Practices for Managing Multiple E-Commerce Accounts</a></h3>
-            <p class="blog-card-excerpt">Running multiple seller accounts on Amazon, eBay, or Shopify? Here are the top 5 practices to organize authorized accounts into separate workspaces.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">4 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="antidetect">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Anti-Detect</span>
-            <h3 class="blog-card-title"><a href="/guides/proxies#types">Proxy Types Explained: HTTP vs SOCKS4 vs SOCKS5</a></h3>
-            <p class="blog-card-excerpt">Understand the differences between proxy types, which one to use for your needs, and how to configure them properly in Profileo.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">3 min read</span>
-            </div>
-          </div>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-box">
-        <h2>Ready to Get Started with<br><span class="gradient-text">Profileo</span>?</h2>
-        <p>Create a browser workspace that fits the way you work.</p>
-        <a href="https://github.com/aa01022600665-coder/profileo/releases/download/v1.3.8/Profileo.Setup.1.3.8.exe" class="btn btn-primary btn-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Profileo for Windows
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
+  </nav><main id="content" class="seo-document"><header class="seo-doc-header container"><nav class="seo-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a><span>/</span><span>Browser profiles</span></nav><span class="badge">Browser profiles</span><h1>Create and Manage Browser Profiles</h1><p class="seo-intro">This guide follows the controls in the public Windows application. Begin with one profile so you can verify its settings before creating more.</p><p class="seo-byline">Profileo documentation · Updated 16 September 2026</p></header><div class="seo-doc-layout container"><aside class="seo-toc"><nav aria-label="On this page"><h2>On this page</h2><ol><li><a href="#create">Create your first browser profile</a></li><li><a href="#fingerprints">Understand the fingerprint settings</a></li><li><a href="#webrtc">Review WebRTC before using a proxy</a></li><li><a href="#manage">Organize and reopen profiles</a></li><li><a href="#troubleshooting">If a profile will not start</a></li></ol></nav></aside><article class="seo-prose"><section id="create"><h2>Create your first browser profile</h2><ol><li>Install Profileo and sign in. An active plan and an available profile slot are required to create a profile.</li><li>Open the profile list and choose <strong>New Profile</strong>. Enter a descriptive name, such as “Client A — support”.</li><li>In <strong>Overview</strong>, choose the browser and review the operating-system and user-agent settings.</li><li>Open <strong>Proxy</strong>. Choose <strong>Without Proxy</strong> for your normal connection, or select the protocol and enter a proxy you are authorized to use.</li><li>Review the remaining settings and choose <strong>+ Create</strong>. Return to the list and launch the profile.</li></ol><p>A profile that uses your normal connection still shares your normal public IP. Read <a href="/guides/proxies">how to assign and verify a proxy</a> if network separation is needed.</p><figure><img width="1536" height="1024" src="/assets/profileo-dashboard-hero-v2.png" alt="Profileo desktop dashboard showing browser profiles and profile controls" loading="lazy" decoding="async"><figcaption>The Profileo desktop dashboard. Start with one profile and verify its settings before adding more.</figcaption></figure></section>
+<section id="fingerprints"><h2>Understand the fingerprint settings</h2><p>A browser fingerprint is a combination of properties a website can observe. In Profileo, the <strong>Advanced</strong> tab includes controls for Canvas, Audio Context, WebGL Image, WebGL Metadata and Client Rects, plus language and screen resolution.</p><p>Choose settings that reflect your intended environment and keep them stable for a workspace. Changing many settings repeatedly can produce inconsistent results. A masked property is not a promise that the browser will be undetectable.</p><p>Use <strong>Timezone</strong> and <strong>Geolocation</strong> to review time and location behavior. If you use a proxy, check the resulting location in the launched browser rather than assuming that every setting has matched automatically.</p></section>
+<section id="webrtc"><h2>Review WebRTC before using a proxy</h2><p>The <strong>WebRTC</strong> tab offers modes including Disabled, Altered and Real. WebRTC is used for browser calling and other real-time features. Restricting it can affect those features; leaving it real can expose network information that differs from your intended proxy route.</p><p>Choose the setting that fits the work, then test the launched browser. Check both the visible public IP and WebRTC behavior. Do this before logging in to a production account, especially when changing a proxy or browser.</p></section>
+<section id="manage"><h2>Organize and reopen profiles</h2><p>Use a naming convention that includes the account owner and purpose. Add comma-separated tags and useful notes in the profile settings, then use the list search and available folder controls to find a workspace.</p><p>Reopen the same profile when returning to an existing account so that you use its saved session. Close the browser before making configuration changes that should apply on the next launch. Review copied or imported settings before using another profile.</p></section>
+<section id="troubleshooting"><h2>If a profile will not start</h2><ul><li>Confirm that your plan is active and your profile limit has not been reached.</li><li>Check whether the selected browser is available on the machine.</li><li>If a proxy is configured, verify its host, port, protocol and credentials.</li><li>Try an authorized test workspace to distinguish a connection problem from an account-specific problem.</li><li>Record the error and contact support if the issue persists. Avoid sharing session cookies or passwords.</li></ul><p>Next: <a href="/multi-account-browser">plan your multi-account workflow</a> or <a href="/guides/proxies#test">test a proxy connection</a>.</p></section><aside class="seo-next"><h2>Continue with Profileo</h2><p><a href="/download">Download for Windows</a> · <a href="/guides">All guides</a> · <a href="/pricing">Plans and pricing</a></p></aside></article></div></main>  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="/" class="logo">
-            <img decoding="async" width="256" height="256" src="assets/icon.png" alt="Profileo" class="logo-icon">
+            <img decoding="async" width="256" height="256" src="/assets/icon.png" alt="Profileo" class="logo-icon">
             <span>Profileo</span>
           </a>
           <p>Anti-detect browser for safe multi-account management. Create unique browser fingerprints for every profile.</p>
@@ -370,27 +224,10 @@
     </div>
   </div>
 
-  <script src="script.min.js"></script>
+  <script src="/script.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
-  <script src="auth.min.js"></script>
-  <!-- Blog Filter JS -->
-  <script>
-    document.querySelectorAll('.blog-filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.blog-filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        document.querySelectorAll('.blog-card').forEach(card => {
-          if (filter === 'all' || card.dataset.category === filter) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
+  <script src="/auth.min.js"></script>
   <!-- Crisp Live Chat -->
   <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="147aa39c-daa6-4822-9733-7a360d384bb1";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
 </body>

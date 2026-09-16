@@ -1,29 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-L725727G6C"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L725727G6C');</script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog - Profileo</title>
-  <meta name="description" content="Stay updated with the latest tips, tutorials, and news about anti-detect browsers, multi-account management, and online privacy.">
-  <meta name="author" content="Profileo">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://getprofileo.com/blog">
-
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://getprofileo.com/blog">
-  <meta property="og:title" content="Blog - Profileo">
-  <meta property="og:description" content="Tips, tutorials, and news about anti-detect browsers and multi-account management.">
-  <meta property="og:image" content="https://getprofileo.com/assets/icon.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/png" href="assets/icon.png">
-  <script type="application/ld+json">{
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Configure HTTP and SOCKS Proxies | Profileo Guide</title><meta name="description" content="Add HTTP, SOCKS4 or SOCKS5 proxies to Profileo, assign them to browser profiles, and check connection details, public IP and WebRTC behavior."><meta name="robots" content="index, follow"><link rel="canonical" href="https://getprofileo.com/guides/proxies"><meta property="og:type" content="website"><meta property="og:title" content="Configure HTTP and SOCKS Proxies | Profileo Guide"><meta property="og:description" content="Add HTTP, SOCKS4 or SOCKS5 proxies to Profileo, assign them to browser profiles, and check connection details, public IP and WebRTC behavior."><meta property="og:url" content="https://getprofileo.com/guides/proxies"><meta property="og:image" content="https://getprofileo.com/assets/profileo-dashboard-hero-v2.png"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/assets/icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/seo.css"><script async src="https://www.googletagmanager.com/gtag/js?id=G-L725727G6C"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-L725727G6C');</script><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Configure HTTP and SOCKS Proxies | Profileo Guide",
+  "description": "Add HTTP, SOCKS4 or SOCKS5 proxies to Profileo, assign them to browser profiles, and check connection details, public IP and WebRTC behavior.",
+  "url": "https://getprofileo.com/guides/proxies",
+  "inLanguage": "en",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Profileo",
+    "url": "https://getprofileo.com/"
+  }
+}</script><script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   "itemListElement": [
@@ -31,25 +19,25 @@
       "@type": "ListItem",
       "position": 1,
       "name": "Profileo",
-      "item": "https://getprofileo.com"
+      "item": "https://getprofileo.com/"
     },
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Blog",
-      "item": "https://getprofileo.com/blog"
+      "name": "Guides",
+      "item": "https://getprofileo.com/guides"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Proxy configuration",
+      "item": "https://getprofileo.com/guides/proxies"
     }
   ]
-}</script>
-  <link rel="stylesheet" href="/seo.css">
-</head>
-<body>
-
-  <!-- NAVBAR -->
-  <nav class="navbar" id="navbar">
+}</script></head><body><a class="seo-skip" href="#content">Skip to content</a><nav class="navbar" id="navbar">
     <div class="container nav-container">
       <a href="/" class="logo">
-        <img decoding="async" width="256" height="256" src="assets/icon.png" alt="Profileo" class="logo-icon">
+        <img decoding="async" width="256" height="256" src="/assets/icon.png" alt="Profileo" class="logo-icon">
         <span>Profileo</span>
       </a>
       <ul class="nav-links" id="navLinks">
@@ -85,151 +73,16 @@
         <span></span><span></span><span></span>
       </button>
     </div>
-  </nav>
-
-  <!-- BLOG HERO -->
-  <section class="blog-hero">
-    <div class="container">
-      <span class="badge">Blog</span>
-      <h1>Latest News &<br><span class="gradient-text">Insights</span></h1>
-      <p class="blog-hero-text">Stay updated with tips, tutorials, and news about anti-detect browsers, multi-account management, and online privacy.</p>
-    </div>
-  </section>
-
-  <!-- CATEGORY FILTERS -->
-  <section class="blog-filters">
-    <div class="container">
-      <div class="blog-filter-bar">
-        <button class="blog-filter-btn active" data-filter="all">All</button>
-        <button class="blog-filter-btn" data-filter="product">Product Updates</button>
-        <button class="blog-filter-btn" data-filter="tutorial">Tutorials</button>
-        <button class="blog-filter-btn" data-filter="antidetect">Anti-Detect</button>
-        <button class="blog-filter-btn" data-filter="automation">Automation</button>
-        <button class="blog-filter-btn" data-filter="tips">Tips & Tricks</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- BLOG GRID -->
-  <section class="blog-posts">
-    <div class="container">
-      <div class="blog-grid">
-
-        <article class="blog-card" data-category="product">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#6c5ce7,#a855f7)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Product Updates</span>
-            <h3 class="blog-card-title"><a href="/download#release">Profileo 1.3.8: Public Windows Release</a></h3>
-            <p class="blog-card-excerpt">Find the public Windows download, installation steps, and a clear explanation of release versions.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">5 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="tutorial">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#22c55e,#16a34a)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Tutorials</span>
-            <h3 class="blog-card-title"><a href="/guides/browser-profiles#create">Getting Started: How to Create Your First Browser Profile</a></h3>
-            <p class="blog-card-excerpt">A step-by-step guide for beginners on setting up Profileo, creating browser profiles with unique fingerprints, and configuring proxies.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">4 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="antidetect">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#f59e0b,#d97706)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Anti-Detect</span>
-            <h3 class="blog-card-title"><a href="/blog/browser-fingerprinting">What Is Browser Fingerprinting and How to Protect Yourself</a></h3>
-            <p class="blog-card-excerpt">Learn how websites track you through browser fingerprints, what data they collect, and what browser-profile and fingerprint controls can change.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">6 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="automation">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#ef4444,#dc2626)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Automation</span>
-            <h3 class="blog-card-title"><a href="/guides/automation">Run and Review Profileo Browser Automation</a></h3>
-            <p class="blog-card-excerpt">Learn to select a script, review its parameters, test one profile, and monitor or stop a run.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">5 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="tips">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Tips & Tricks</span>
-            <h3 class="blog-card-title"><a href="/multi-account-browser#ecommerce">5 Best Practices for Managing Multiple E-Commerce Accounts</a></h3>
-            <p class="blog-card-excerpt">Running multiple seller accounts on Amazon, eBay, or Shopify? Here are the top 5 practices to organize authorized accounts into separate workspaces.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">4 min read</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="blog-card" data-category="antidetect">
-          <div class="blog-card-img" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-          </div>
-          <div class="blog-card-body">
-            <span class="blog-card-category">Anti-Detect</span>
-            <h3 class="blog-card-title"><a href="/guides/proxies#types">Proxy Types Explained: HTTP vs SOCKS4 vs SOCKS5</a></h3>
-            <p class="blog-card-excerpt">Understand the differences between proxy types, which one to use for your needs, and how to configure them properly in Profileo.</p>
-            <div class="blog-card-meta">
-              <span class="blog-card-author">Profileo Team</span>
-              <span class="blog-card-time">3 min read</span>
-            </div>
-          </div>
-        </article>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="container">
-      <div class="cta-box">
-        <h2>Ready to Get Started with<br><span class="gradient-text">Profileo</span>?</h2>
-        <p>Create a browser workspace that fits the way you work.</p>
-        <a href="https://github.com/aa01022600665-coder/profileo/releases/download/v1.3.8/Profileo.Setup.1.3.8.exe" class="btn btn-primary btn-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download Profileo for Windows
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
+  </nav><main id="content" class="seo-document"><header class="seo-doc-header container"><nav class="seo-breadcrumb" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides">Guides</a><span>/</span><span>Proxy configuration</span></nav><span class="badge">Proxy configuration</span><h1>Configure HTTP and SOCKS Proxies</h1><p class="seo-intro">A proxy changes the route used by supported browser traffic. It works alongside a browser profile; it does not replace separate cookies or profile settings.</p><p class="seo-byline">Profileo documentation · Updated 16 September 2026</p></header><div class="seo-doc-layout container"><aside class="seo-toc"><nav aria-label="On this page"><h2>On this page</h2><ol><li><a href="#add">Add your proxy connection</a></li><li><a href="#types">HTTP, SOCKS4 and SOCKS5: which should you choose?</a></li><li><a href="#test">Verify the launched browser</a></li><li><a href="#troubleshooting">Troubleshoot connection failures</a></li></ol></nav></aside><article class="seo-prose"><section id="add"><h2>Add your proxy connection</h2><ol><li>Open the proxy manager and select <strong>+ Add Proxy</strong>.</li><li>Choose the connection type supplied by your provider: HTTP, SOCKS4 or SOCKS5.</li><li>Enter one connection per line in <strong>Proxy List</strong>. The form accepts <code>host:port:username:password</code>; use the authentication details required by your provider.</li><li>Optionally set the network type, location, tags, expiry date and notes to help you identify the connection.</li><li>Select <strong>Add Proxies</strong>. Open a browser profile, go to <strong>Proxy</strong> and select the saved proxy, then save the profile.</li></ol><p>Do not publish your proxy list or include live credentials in screenshots. If your provider uses IP allowlisting, confirm the machine is allowed to connect.</p></section>
+<section id="types"><h2>HTTP, SOCKS4 and SOCKS5: which should you choose?</h2><p>Use the protocol offered by your provider and supported by the browser you intend to run. A host and port do not tell you the protocol; copying the right address into the wrong protocol field can still fail.</p><div class="seo-table-wrap"><table><thead><tr><th>Connection type</th><th>Practical consideration</th></tr></thead><tbody><tr><td>HTTP</td><td>Common for web browsing. Confirm whether the provider supports HTTPS destinations and which authentication method it requires.</td></tr><tr><td>SOCKS4</td><td>An older SOCKS protocol. Verify the provider's address and authentication requirements rather than assuming SOCKS5 settings apply.</td></tr><tr><td>SOCKS5</td><td>A newer SOCKS protocol. Actual authentication, DNS and traffic behavior depend on the provider and browser integration.</td></tr></tbody></table></div><p>Residential, datacenter, mobile and ISP describe the network source rather than the connection protocol. Choose based on a legitimate network requirement and verify the provider’s terms.</p></section>
+<section id="test"><h2>Verify the launched browser</h2><ol><li>Launch the profile after saving its proxy settings.</li><li>Visit an IP-check page you trust and compare the displayed public IP with the expected endpoint from your provider.</li><li>Check the reported location and the browser timezone. Locations inferred from IP addresses can be approximate.</li><li>Check WebRTC behavior separately when it matters to your workflow. See the <a href="/guides/browser-profiles#webrtc">WebRTC settings guide</a>.</li><li>Close and reopen the profile to confirm the configuration persists.</li></ol><p>An IP check only confirms what that check can observe. It is not proof that every kind of traffic uses the proxy or that a website cannot associate two sessions.</p></section>
+<section id="troubleshooting"><h2>Troubleshoot connection failures</h2><p>For authentication errors, recheck the username, password and allowlist. For timeouts, check the host, port, provider status and whether the subscription has expired. For an unexpected IP, confirm that you launched the intended profile and saved its proxy assignment.</p><p>When asking support for help, share the protocol and exact error with credentials removed. Next, <a href="/guides/browser-profiles#manage">organize your profiles</a> so each workspace uses the intended connection.</p></section><aside class="seo-next"><h2>Continue with Profileo</h2><p><a href="/download">Download for Windows</a> · <a href="/guides">All guides</a> · <a href="/pricing">Plans and pricing</a></p></aside></article></div></main>  <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="/" class="logo">
-            <img decoding="async" width="256" height="256" src="assets/icon.png" alt="Profileo" class="logo-icon">
+            <img decoding="async" width="256" height="256" src="/assets/icon.png" alt="Profileo" class="logo-icon">
             <span>Profileo</span>
           </a>
           <p>Anti-detect browser for safe multi-account management. Create unique browser fingerprints for every profile.</p>
@@ -370,27 +223,10 @@
     </div>
   </div>
 
-  <script src="script.min.js"></script>
+  <script src="/script.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-auth-compat.js"></script>
-  <script src="auth.min.js"></script>
-  <!-- Blog Filter JS -->
-  <script>
-    document.querySelectorAll('.blog-filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.blog-filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const filter = btn.dataset.filter;
-        document.querySelectorAll('.blog-card').forEach(card => {
-          if (filter === 'all' || card.dataset.category === filter) {
-            card.style.display = '';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-  </script>
+  <script src="/auth.min.js"></script>
   <!-- Crisp Live Chat -->
   <script type="text/javascript">window.$crisp=[];window.CRISP_WEBSITE_ID="147aa39c-daa6-4822-9733-7a360d384bb1";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();</script>
 </body>

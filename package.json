@@ -8,7 +8,9 @@
     "dev:android": "set VITE_ENABLE_ANDROID=true&& set PROFILEO_ENABLE_ANDROID=true&& electron-vite dev",
     "build": "electron-vite build",
     "preview": "electron-vite preview",
-    "dist": "node scripts/ensure-profileo-browser.mjs && electron-vite build && electron-builder --win"
+    "dist": "node scripts/ensure-profileo-browser.mjs && electron-vite build && electron-builder --win",
+    "build:site": "node scripts/build-site.mjs",
+    "check:site": "node scripts/check-site.mjs"
   },
   "build": {
     "appId": "com.profileo.app",

@@ -33,9 +33,9 @@ document.querySelectorAll('.faq-q').forEach(btn => {
 // Pricing period toggle
 const discounts = { monthly: 0, '3months': 0.20, '6months': 0.30, '12months': 0.50 }
 const months = { monthly: 1, '3months': 3, '6months': 6, '12months': 12 }
-const DOWNLOAD_FALLBACK_URL = 'https://github.com/aa01022600665-coder/profileo/releases/latest/download/Profileo.Setup.1.3.7.exe'
+const DOWNLOAD_FALLBACK_URL = 'https://github.com/aa01022600665-coder/profileo/releases/download/v1.3.8/Profileo.Setup.1.3.8.exe'
 const LATEST_RELEASE_API_URL = 'https://api.github.com/repos/aa01022600665-coder/profileo/releases/latest'
-let downloadFileName = 'Profileo.Setup.1.3.7.exe'
+let downloadFileName = 'Profileo.Setup.1.3.8.exe'
 
 window.PROFILEO_DOWNLOAD_URL = DOWNLOAD_FALLBACK_URL
 window.PROFILEO_DOWNLOAD_FILE_NAME = downloadFileName
@@ -70,7 +70,7 @@ async function refreshDownloadLinks() {
     if (!response.ok) return
     const release = await response.json()
     const asset = Array.isArray(release.assets)
-      ? release.assets.find(item => /^Profileo\.Setup\.\d+\.\d+\.\d+\.exe$/.test(item.name))
+      ? release.assets.find(item => item.name === `Profileo.Setup.${String(release.tag_name || '').replace(/^v/, '')}.exe`) || release.assets.filter(item => /^Profileo\.Setup\.\d+\.\d+\.\d+\.exe$/.test(item.name)).sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }))[0]
       : null
     if (!asset || !asset.browser_download_url) return
 
