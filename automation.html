@@ -41,7 +41,7 @@
     }
   ]
 }</script>
-  <link rel="stylesheet" href="/seo.css?v=699eb41bb8a7">
+  <link rel="stylesheet" href="/seo.css?v=ebcb023e12d0">
 <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -107,11 +107,27 @@
       <p class="automation-caption">Visual script builder · Configurable parameters · Per-profile status</p>
     </div>
     <figure class="automation-example" aria-labelledby="workflow-caption">
-      <div class="automation-example-top"><span>YOUR FIRST WORKFLOW</span><span class="automation-pill">No code</span></div>
-      <ol class="automation-flow"><li><span>01</span><div><strong>Navigate</strong><small>Open a page you manage</small></div></li><li><span>02</span><div><strong>Wait for Element</strong><small>Choose a CSS selector</small></div></li><li><span>03</span><div><strong>Scroll</strong><small>Move down one page</small></div></li></ol>
-      <div class="automation-profile-row"><span>QA profile A</span><span>Same saved workflow</span></div>
-      <div class="automation-profile-row"><span>QA profile B</span><span>Separate browser session</span></div>
-      <figcaption id="workflow-caption">Workflow illustration. Follow the guide to create it in the visual builder.</figcaption>
+      <div class="workflow-toolbar">
+        <span class="workflow-brand-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span>
+        <div><span class="workflow-eyebrow">WORKFLOW BUILDER</span><h2>Page check</h2></div>
+        <span class="workflow-count">3 steps</span>
+      </div>
+      <div class="workflow-canvas">
+        <div class="workflow-trigger"><span aria-hidden="true"></span>Start workflow</div>
+        <ol class="workflow-nodes">
+          <li><span class="workflow-node-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg></span><div><strong>Navigate</strong><small>Open your target page</small></div><span class="workflow-node-index" aria-label="Step 1">01</span></li>
+          <li><span class="workflow-node-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3M3 16v3a2 2 0 0 0 2 2h3m8 0h3a2 2 0 0 0 2-2v-3"/><circle cx="12" cy="12" r="4"/><path d="M12 10v2l1.5 1"/></svg></span><div><strong>Wait for Element</strong><small>Wait for a matching selector</small></div><span class="workflow-node-index" aria-label="Step 2">02</span></li>
+          <li><span class="workflow-node-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v6m-2-2 2 2 2-2"/></svg></span><div><strong>Scroll</strong><small>Move down one page</small></div><span class="workflow-node-index" aria-label="Step 3">03</span></li>
+        </ol>
+        <div class="workflow-destinations">
+          <div class="workflow-destination-label"><span>SELECTED PROFILES</span><span>02</span></div>
+          <div class="workflow-profile-grid">
+            <div class="workflow-profile"><span class="workflow-profile-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></svg></span><div><strong>QA profile A</strong><small>Separate session</small></div></div>
+            <div class="workflow-profile"><span class="workflow-profile-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/></svg></span><div><strong>QA profile B</strong><small>Separate session</small></div></div>
+          </div>
+        </div>
+      </div>
+      <figcaption id="workflow-caption"><span aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 8-4 4 4 4m8-8 4 4-4 4m-3-11-2 14"/></svg></span>Workflow illustration · One sequence, separate profiles</figcaption>
     </figure>
   </section>
   <section class="automation-section container" id="how-it-works">
