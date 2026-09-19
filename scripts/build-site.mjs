@@ -6,7 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'site-dist');
 // A strict public-file allowlist prevents Electron source, dependencies and local
 // credentials from being uploaded with the marketing website.
-const staticFiles = ['style.css', 'seo.css', 'partners.css', 'script.js', 'script.min.js', 'partners.js', 'auth.min.js', 'billing.js', 'billing.min.js', 'robots.txt', '_headers', '_redirects'];
+const staticFiles = ['style.css', 'seo.css', 'partners.css', 'product-gallery.css', 'product-gallery.js', 'script.js', 'script.min.js', 'partners.js', 'auth.min.js', 'billing.js', 'billing.min.js', 'robots.txt', '_headers', '_redirects'];
 const files = fs.readdirSync(root).filter(name => name.endsWith('.html')).concat(staticFiles);
 for (const directory of ['guides', 'blog']) {
   for (const name of fs.readdirSync(path.join(root, directory))) {

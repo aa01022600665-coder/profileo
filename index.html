@@ -112,6 +112,8 @@
   "url": "https://getprofileo.com"
 }</script>
   <link rel="stylesheet" href="/seo.css">
+  <link rel="stylesheet" href="/product-gallery.css">
+  <script src="/product-gallery.js" defer></script>
 </head>
 <body>
 
@@ -184,9 +186,47 @@
         </div>
       </div>
       <div class="hero-visual">
-        <div class="app-showcase">
-          <img decoding="async" width="1536" height="1024" src="assets/profileo-dashboard-hero-v2.png" alt="Profileo desktop dashboard with profiles, proxies, fingerprint controls, and profile creation">
-        </div>
+        <section class="product-gallery" aria-label="Inside Profileo" aria-roledescription="carousel">
+          <div class="gallery-heading"><span><i aria-hidden="true"></i> INSIDE PROFILEO</span><span>Windows desktop app</span></div>
+          <div class="gallery-screen">
+            <div class="gallery-slides" aria-live="off">
+              <figure class="gallery-slide is-active" role="group" aria-roledescription="slide" aria-label="1 of 4: Create a profile" data-title="A workspace for every account" data-description="Choose your browser, connection and profile settings.">
+                <img src="assets/screenshots/create-profile.webp" width="1600" height="1120" fetchpriority="high" alt="Profileo: create a profile with browser choices, connection settings and a configuration preview">
+              </figure>
+              <figure class="gallery-slide" role="group" aria-roledescription="slide" aria-label="2 of 4: Create multiple profiles" aria-hidden="true" data-title="One setup. A whole batch." data-description="Create multiple profiles with a clear preview before saving.">
+                <img src="assets/screenshots/create-multiple.webp" width="1600" height="1120" loading="lazy" decoding="async" alt="Profileo: multiple profile creation with naming options and a batch preview">
+              </figure>
+              <figure class="gallery-slide" role="group" aria-roledescription="slide" aria-label="3 of 4: Quick Profile" aria-hidden="true" data-title="From setup to launch, faster" data-description="Bring browser, proxy and launch options into one place.">
+                <img src="assets/screenshots/quick-profile.webp" width="1600" height="1120" loading="lazy" decoding="async" alt="Profileo Quick Profile: browser selection and launch configuration">
+              </figure>
+              <figure class="gallery-slide" role="group" aria-roledescription="slide" aria-label="4 of 4: Settings" aria-hidden="true" data-title="Your defaults. Ready for next time." data-description="Set preferences once for the profiles you create next.">
+                <img src="assets/screenshots/settings.webp" width="1600" height="1120" loading="lazy" decoding="async" alt="Profileo Settings: default browser, language, proxy and hardware preferences">
+              </figure>
+            </div>
+            <button class="gallery-expand" type="button" aria-label="Enlarge current screenshot" hidden><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg> Explore the interface</button>
+          </div>
+          <div class="gallery-footer">
+            <div class="gallery-caption"><span class="gallery-index" aria-hidden="true">01 / 04</span><h2>A workspace for every account</h2><p>Choose your browser, connection and profile settings.</p></div>
+            <div class="gallery-controls" hidden>
+              <div class="gallery-dots" role="group" aria-label="Choose a screenshot">
+                <button type="button" aria-label="Show Create a profile" aria-current="true"></button>
+                <button type="button" aria-label="Show Create multiple profiles"></button>
+                <button type="button" aria-label="Show Quick Profile"></button>
+                <button type="button" aria-label="Show Settings"></button>
+              </div>
+              <div class="gallery-arrows">
+                <button class="gallery-previous" type="button" aria-label="Previous screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+                <button class="gallery-play" type="button" aria-label="Pause automatic slideshow"><span aria-hidden="true">Ⅱ</span></button>
+                <button class="gallery-next" type="button" aria-label="Next screenshot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+              </div>
+            </div>
+          </div>
+          <p class="gallery-note">Actual Profileo interface · Demo workspace</p>
+          <dialog class="gallery-dialog" aria-labelledby="gallery-dialog-title">
+            <div class="gallery-dialog-heading"><h2 id="gallery-dialog-title">Profileo interface</h2><button class="gallery-close" type="button" aria-label="Close screenshot">Close <span aria-hidden="true">×</span></button></div>
+            <img width="1600" height="1120" alt="">
+          </dialog>
+        </section>
       </div>
     </div>
   </section>
